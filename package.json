@@ -1,0 +1,35 @@
+{
+  "name": "guess-me-first",
+  "version": "1.0.0",
+  "description": "guess me first game application",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SimonThuillier/guess-me-first.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SimonThuillier/guess-me-first/issues"
+  },
+  "homepage": "https://github.com/SimonThuillier/guess-me-first#readme",
+  "devDependencies": {
+    "@babel/core": "^7.17.0",
+    "@babel/node": "^7.16.8",
+    "@babel/preset-env": "^7.16.11",
+    "nodemon": "^2.0.15",
+    "sass": "^1.49.7",
+    "vite-preset-react": "^2.2.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.2"
+  }
+}
