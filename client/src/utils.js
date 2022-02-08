@@ -35,3 +35,13 @@ export function useLocalStorage(key, initialValue) {
     };
     return [storedValue, setValue];
 }
+
+/**
+ * returns true if a valid playerName exists in localStorage, false else
+ * @returns boolean
+ */
+export function hasValidPlayerName(){
+    const item= window.localStorage.getItem('playerName');
+    const playerName = item ? JSON.parse(item) : null;
+    return playerName !== null && !!playerName && `${playerName}`.length >= 3;
+}

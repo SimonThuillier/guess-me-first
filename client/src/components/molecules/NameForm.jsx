@@ -1,4 +1,5 @@
 import {useState} from "react";
+import PropTypes from 'prop-types';
 import {Form, Button, Alert} from "react-bootstrap";
 
 import { useLocalStorage } from '../../utils';
@@ -11,7 +12,6 @@ const isValid = (name) => {
 function NameForm(props){
 
     const [playerName, setPlayerName] = useLocalStorage("playerName", null);
-    console.log(playerName);
     const [formData, setFormData] = useState(
     {
         playerName: playerName || "",
@@ -63,6 +63,10 @@ function NameForm(props){
         </Form>
     )
 }
+
+NameForm.propTypes = {
+    onSubmit: PropTypes.func.isRequired
+};
 
 export default NameForm;
         
