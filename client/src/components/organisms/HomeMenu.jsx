@@ -1,5 +1,5 @@
 import {useState} from "react";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import {Button, Row, Col} from "react-bootstrap";
 import { useLocalStorage } from '../../utils';
 import NameForm from '../molecules/NameForm'

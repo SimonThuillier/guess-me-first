@@ -1,6 +1,6 @@
 
 import {Row, Col} from "react-bootstrap";
-
+import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from '../../utils';
 import Layout from '../Layout'
 import GameConfigurationForm from "../organisms/GameConfigurationForm";
@@ -12,9 +12,12 @@ function GameConfiguration() {
     choicesPerRound: 4
     });
 
+  const navigate = useNavigate();
+
   const handleSubmit = (data) => {
     console.log(data);
     setOwnedGameConfiguration(data);
+    navigate('/game');
   }  
 
   return (

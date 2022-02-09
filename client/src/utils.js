@@ -1,6 +1,4 @@
-import { useState } from 'react'
-
-
+import { useState } from 'react';
 
 export function useLocalStorage(key, initialValue) {
     // State to store our value
@@ -44,4 +42,14 @@ export function hasValidPlayerName(){
     const item= window.localStorage.getItem('playerName');
     const playerName = item ? JSON.parse(item) : null;
     return playerName !== null && !!playerName && `${playerName}`.length >= 3;
+}
+
+/**
+ * returns the playerName stored in localStorage, empty else
+ * @returns string
+ */
+ export function getPlayerName(){
+  const item= window.localStorage.getItem('playerName');
+  const playerName = item ? JSON.parse(item) : null;
+  return playerName || "";
 }
