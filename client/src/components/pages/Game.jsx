@@ -1,6 +1,9 @@
 import {useEffect} from "react";
+import {Row, Col} from "react-bootstrap";
+import Layout from '../Layout';
 import { getPlayerName } from '../../utils';
 import { sioSingleton } from '../../sio-client';
+import Chat from '../organisms/Chat';
 
 function Game() {
 
@@ -16,9 +19,14 @@ function Game() {
 
 
   return (
-    <div>
-        Game
-    </div>
+    <Layout>
+        <Row>
+          <Col md={8} >Game</Col>
+          <Col md={4}>
+            <Chat/>
+          </Col>
+      </Row>
+    </Layout>
   )
 }
 
