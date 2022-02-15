@@ -16,10 +16,10 @@ function HomeMenu() {
   }
 
   const playerRow = editingPlayerName? 
-        <Row className="menu-row">
+        <Row>
             <NameForm onSubmit = {onSubmitPlayerName}/>
         </Row> :
-        <Row className="menu-row">
+        <Row>
             <Col>
             <h1>Bonjour {playerName}</h1>&nbsp;
                 <Button variant="light" onClick={()=>{setEditingPlayerName(true);}}>
@@ -36,7 +36,7 @@ function HomeMenu() {
         <Row className="menu-row">
             <div className="d-grid gap-2">
                 <Button variant="primary" size="lg" onClick={() => navigate('/game-configuration')}>
-                    Creer une partie
+                    Créer une partie
                 </Button>
             </div>
         </Row>

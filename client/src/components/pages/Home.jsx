@@ -10,13 +10,13 @@ function Home() {
   const [playerName] = useLocalStorage("playerName", null);
 
   return (
-    <Layout>
+    <Layout vcenter>
         <Row>
-          <Col></Col>
-          <Col>
+          <Col sm={2} md={4} />
+          <Col sm={8} md={4}>
             <HomeMenu/>
           </Col>
-          <Col></Col>
+          <Col sm={2} md={4} />
       </Row>
     </Layout>
   )

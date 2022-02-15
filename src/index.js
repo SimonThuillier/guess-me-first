@@ -28,14 +28,26 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
+    /*console.log('a user connected :)');
+    socket.on('disconnect', (socket) => {
+        console.log('a user disconnected :(');
+    });
+    socket.onAny((eventName, ...args) => {
+        console.log("received " + eventName + " event with args:", args);
+    });*/
+});
+
+const gameNamespace = io.of("/game");
+
+gameNamespace.on("connection", socket => {
     console.log('a user connected :)');
     socket.on('disconnect', (socket) => {
         console.log('a user disconnected :(');
     });
-    socket.on('hello', (data) => {
-        console.log(data);
+    socket.onAny((eventName, ...args) => {
+        console.log("received " + eventName + " event with args:", args);
     });
-});
+  });
 
 server.listen(PORT, () => {
     console.log(`express server is running on port ${PORT}`);

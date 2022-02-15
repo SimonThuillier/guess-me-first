@@ -1,5 +1,18 @@
 @import "./node_modules/bootstrap/scss/bootstrap.scss";
 
+.navbar-brand:hover {
+    color: rgb(92, 155, 236)!important;
+    cursor: pointer;
+};
+
+.vertical-center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
 .menu-row {
     padding-top: 2vh;
 }

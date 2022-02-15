@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { v4 as uuidV4 } from "uuid";
 
 export function useLocalStorage(key, initialValue) {
     // State to store our value
@@ -32,6 +33,36 @@ export function useLocalStorage(key, initialValue) {
       }
     };
     return [storedValue, setValue];
+}
+
+/**
+ * returns true if a valid playerId exists in localStorage, false else
+ * @returns boolean
+ */
+ export function hasValidPlayerId(){
+  const item= window.localStorage.getItem('playerId');
+  const playerId = item ? JSON.parse(item) : null;
+  return !!playerId;
+}
+
+/**
+* returns the playerId stored in localStorage, empty else
+* @returns string
+*/
+export function getPlayerId(){
+  const item= window.localStorage.getItem('playerId');
+  const playerId = item ? JSON.parse(item) : null;
+  return playerId || "";
+}
+
+/**
+* create a playerId, store it in locaStorage and returns it
+* @returns string
+*/
+export function createPlayerId(){
+  const playerId = uuidV4();
+  window.localStorage.setItem('playerId', JSON.stringify(playerId));
+  return playerId;
 }
 
 /**

@@ -1,14 +1,22 @@
 import { Navbar, Container} from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 
-const MyNavbar = () => (
+const MyNavbar = function(){
+
+  const navigate = useNavigate();
+
+  return (
   <Navbar bg="dark" variant="dark">
     <Container>
-      <Navbar.Brand href="/">
+      <Navbar.Brand onClick={()=>{navigate("/")}}>
       Guess me First !
       </Navbar.Brand>
     </Container>
   </Navbar>
-);
+  )
+}
+
+
 
 export default MyNavbar;

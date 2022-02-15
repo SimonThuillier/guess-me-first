@@ -51,6 +51,9 @@ export let sioSingleton = (() => {
                 //sockets[nsp].connect();
             }
             return sockets[nsp];
+        },
+        getDefaultSocket: () => {
+            return sockets["/"];
         }
     };
 })();

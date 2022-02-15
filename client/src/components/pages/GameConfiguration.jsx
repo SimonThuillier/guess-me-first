@@ -17,17 +17,17 @@ function GameConfiguration() {
   const handleSubmit = (data) => {
     console.log(data);
     setOwnedGameConfiguration(data);
-    navigate('/game');
+    navigate('/new-game');
   }  
 
   return (
-    <Layout>
+    <Layout vcenter>
         <Row>
-          <Col></Col>
-          <Col>
+          <Col sm={2} md={4}></Col>
+          <Col sm={8} md={4}>
             <GameConfigurationForm initialData={ownedGameConfiguration} onSubmit={handleSubmit}/>
           </Col>
-          <Col></Col>
+          <Col sm={2} md={4}></Col>
       </Row>
     </Layout>
   )
