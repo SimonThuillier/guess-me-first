@@ -1,26 +1,37 @@
 import {useEffect} from "react";
+import { useNavigate } from "react-router-dom";
 import {Row, Col} from "react-bootstrap";
 import Layout from '../Layout';
 import { useLocalStorage, getPlayerId, getPlayerName } from '../../utils';
 import { sioSingleton } from '../../sio-client';
 import Chat from '../organisms/Chat';
+import GameLoading from "../organisms/GameLoading";
 
 function Game() {
-
-  const [ownedGameConfiguration, setOwnedGameConfiguration] = useLocalStorage("ownedGameConfiguration",null);
+  // for fast loading new game data in case you just created it
+  const [newGameData, setNewGameData] = useLocalStorage("newGameData",null);
+  let gameData = null;
 
   useEffect(() => {
+    console.log(location.pathname);
+
+
     const socket = sioSingleton.getSocket('/game');
     socket.off('connect').on('connect', () => {
-      console.log('connected to new-game');
-      socket.emit('createGame', {
-        creatorId: getPlayerId(), 
-        creatorName: getPlayerName(), 
-        parameters: ownedGameConfiguration  
-      });
+      
+      
     });
     socket.connect();
   }, []);
+
+  if(!gameData){
+    return (<GameLoading/>);
+  }
+
+
+
+
+
 
 
   return (

@@ -60,7 +60,7 @@ export function getPlayerId(){
 * @returns string
 */
 export function createPlayerId(){
-  const playerId = uuidV4();
+  const playerId = `u_${uuidV4()}`;
   window.localStorage.setItem('playerId', JSON.stringify(playerId));
   return playerId;
 }

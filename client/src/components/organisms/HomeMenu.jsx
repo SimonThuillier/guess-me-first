@@ -10,6 +10,8 @@ function HomeMenu() {
   const [playerName, setPlayerName] = useLocalStorage("playerName", null);
   const [editingPlayerName, setEditingPlayerName] = useState(!playerName);
 
+  const navigate = useNavigate();
+
   const onSubmitPlayerName = (playerName) => {
     setPlayerName(playerName);
     setEditingPlayerName(false);
@@ -28,7 +30,9 @@ function HomeMenu() {
             </Col>
         </Row>
 
-  const navigate = useNavigate();
+  if(!playerName || playerName === ""){
+      return (<div>{playerRow}</div>);
+  }    
 
   return (
     <div>

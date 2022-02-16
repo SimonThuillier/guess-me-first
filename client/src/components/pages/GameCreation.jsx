@@ -11,17 +11,28 @@ function GameCreation() {
 
   const [ownedGameConfiguration] = useLocalStorage("ownedGameConfiguration",null);
   const [gameCreationStatus, setGameCreationStatus] = useState("gameCreationStatus",{status: "CONNECTING", message:null});
+  // for fast charging new game data 
+  const [newGameData, setNewGameData] = useLocalStorage("newGameData",null);
   const navigate = useNavigate();
 
   const onConnect = () => {
     const socket = sioSingleton.getSocket('/game');
-      socket.emit('createGame', {
-        creatorId: getPlayerId(), 
-        creatorName: getPlayerName(), 
-        parameters: ownedGameConfiguration  
-      });
 
-      setGameCreationStatus({status: "CREATING", message:null});
+    socket.on('gameCreated', (...args) => {
+      console.log('gameCreated', args);
+      const params = args[0];
+      setNewGameData(params);
+      navigate(params.path);
+    });
+
+
+    socket.emit('createGame', {
+      creatorId: getPlayerId(), 
+      creatorName: getPlayerName(), 
+      parameters: ownedGameConfiguration  
+    });
+
+    setGameCreationStatus({status: "CREATING", message:null});
   }
 
   const onConnectFailed = (err) => {
