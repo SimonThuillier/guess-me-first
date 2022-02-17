@@ -1,16 +1,17 @@
+import PropTypes from 'prop-types';
 import {useEffect} from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {Row, Col} from "react-bootstrap";
 import Layout from '../Layout';
 
-function NotFound() {
+function NotFound(props) {
 
   const navigate = useNavigate();
 
   useEffect(() => {
     setTimeout(() => {
       navigate("/");
-      }, 2000);
+      }, 2500);
     }, []);
 
   return (
@@ -18,7 +19,7 @@ function NotFound() {
         <Row>
           <Col md={4}/>
           <Col md={4} >
-            <h1>Page non trouvée</h1>
+            <h1>{!!props.game ? "Partie non trouvée": "Page non trouvée"}</h1>
             <hr />
             <h3>Vous allez être redirigé vers le <Link to={"/"}>menu</Link>...</h3>
           </Col>
@@ -27,5 +28,9 @@ function NotFound() {
     </Layout>
   )
 }
+
+NotFound.propTypes = {
+  game: PropTypes.any,
+};
 
 export default NotFound

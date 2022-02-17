@@ -4,7 +4,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 
 import { PORT, CUSTOM_HEADER_KEY, FRONTEND_URL } from './const.js';
-import { games } from './game.js';
+import { games, ioProxy } from './game.js';
 
 
 
@@ -39,6 +39,7 @@ io.on('connection', (socket) => {
 });
 
 const gameNamespace = io.of("/game");
+ioProxy.io = io;
 
 gameNamespace.on("connection", socket => {
     console.log('a user connected :)');
@@ -57,12 +58,26 @@ gameNamespace.on("connection", socket => {
         console.log("will createGame with args:", args[0]);
         socketPlayerId = args[0].creatorId;
         const game = games.addGame(args[0].creatorId, args[0].creatorName, args[0].parameters);
+        socketGames.add(game.gameId);
+        // emitting game creation notification
+        game.addMessage(null, 'BOT', `${game.creatorName} a créé la partie`);
+        socket.emit('gameCreated', game.getPublicData());
         // joining game room
         socket.join(game.gameId);
-        socketGames.add(game.gameId);
-        console.log(socket.rooms);
-        // emitting game creation notification
-        socket.emit('gameCreated', game.getPublicData());
+    });
+    socket.on('loadGame', (...args) => {
+        console.log("will loadGame of args:", args[0]);
+        const game = games.getGame(args[0].gameId);
+        socketPlayerId = args[0].playerId;
+        if(!game){
+            socket.emit('gameLoaded', {error: "Game not found"});
+            return;
+        }
+        games.playerJoinGame(socketPlayerId, game.gameId);
+        game.addMessage(null, 'BOT', `${args[0].playerName} a rejoint la partie`);
+        socket.emit('gameLoaded', {data: game.getPublicData()});
+        // joining game room
+        socket.join(game.gameId);
     });
   });
 

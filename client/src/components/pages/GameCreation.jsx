@@ -5,14 +5,14 @@ import {Row, Col} from "react-bootstrap";
 import { useLocalStorage, getPlayerId, getPlayerName } from '../../utils';
 import { sioSingleton } from '../../sio-client';
 import Layout from '../Layout';
-import GameCreationAlert from '../molecules/GameCreationAlert';
+import GameStatusAlert from '../molecules/GameStatusAlert';
 
 function GameCreation() {
 
   const [ownedGameConfiguration] = useLocalStorage("ownedGameConfiguration",null);
   const [gameCreationStatus, setGameCreationStatus] = useState("gameCreationStatus",{status: "CONNECTING", message:null});
   // for fast charging new game data 
-  const [newGameData, setNewGameData] = useLocalStorage("newGameData",null);
+  const [gameData, setGameData] = useLocalStorage("gameData",null);
   const navigate = useNavigate();
 
   const onConnect = () => {
@@ -21,7 +21,7 @@ function GameCreation() {
     socket.on('gameCreated', (...args) => {
       console.log('gameCreated', args);
       const params = args[0];
-      setNewGameData(params);
+      setGameData(params);
       navigate(params.path);
     });
 
@@ -66,7 +66,7 @@ function GameCreation() {
         <Row>
           <Col sm={2} md={4}/>
           <Col sm={8} md={4}>
-            <GameCreationAlert
+            <GameStatusAlert
               variant="danger"
               heading="Erreur lors de la création de la partie"
               message={gameCreationStatus.message}

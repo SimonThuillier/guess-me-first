@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {Button, Row, Col} from "react-bootstrap";
 import { useLocalStorage } from '../../utils';
 import NameForm from '../molecules/NameForm'
-
+import JoinGameForm from '../molecules/JoinGameForm'
 
 
 function HomeMenu() {
@@ -46,9 +46,11 @@ function HomeMenu() {
         </Row>
         <Row className="menu-row">
             <div className="d-grid gap-2">
-                <Button variant="success" size="lg">
-                    Rejoindre une partie
-                </Button>
+                <JoinGameForm onSubmit={(event)=>{
+                    event.preventDefault();
+                    navigate(event.target.elements.gameLink.value.replace(window.location.origin,''));
+                    console.log(event.target.elements.gameLink.value.replace(window.location.origin,''));
+                    }}/>
             </div>
         </Row>
     </div>

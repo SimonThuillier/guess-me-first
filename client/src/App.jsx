@@ -19,11 +19,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route exact path="/" element={<Home></Home>} />
-        <Route exact path="/game-configuration" element={<GameConfiguration></GameConfiguration>} />
-        <Route exact path="/new-game" element={<GameCreation></GameCreation>} />
-        <Route path="/game/*" element={<Game></Game>} />
-        <Route path="*" element={<NotFound></NotFound>} />
+        <Route exact path="/" element={<Home/>} />
+        <Route exact path="/game-configuration" element={<GameConfiguration/>} />
+        <Route exact path="/new-game" element={<GameCreation/>} />
+        <Route path="/game/*" element={<Game/>} />
+        <Route exact path="/unknown-game" element={<NotFound game/>} />
+        <Route path="*" element={<NotFound/>} />
       </Routes>
     </BrowserRouter>
   )

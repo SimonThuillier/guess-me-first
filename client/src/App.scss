@@ -9,13 +9,26 @@
     margin: 0;
     position: absolute;
     top: 50%;
-    -ms-transform: translateY(-50%);
     transform: translateY(-50%);
+}
+
+@-moz-document url-prefix() {
+    .vertical-center {
+        -ms-transform: translateY(-50%);
+    }
 }
 
 .menu-row {
     padding-top: 2vh;
 }
+
+.card-header.join-game-card-header {
+    padding: 0px;
+};
+
+button.join-game-card-button {
+    min-width: 100%;  
+};
 
 .chat-container {
     border: solid;
@@ -23,4 +36,20 @@
     border-color: gainsboro;
     border-radius: 5px;
     padding: 0.5vh;
+}
+
+.game-pending-container {
+    border: solid;
+    border-width: thin;
+    border-color: gainsboro;
+    border-radius: 5px;
+    padding: 0.5vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-pending-container>div {
+   flex-basis: auto; 
 }

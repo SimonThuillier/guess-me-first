@@ -1,5 +1,12 @@
 import { v4 as uuidV4 } from "uuid";
 import { FRONTEND_URL } from './const.js';
+import { ChatMessages } from './chat.js';
+
+// to contourn reference circularity issue this proxy object is used to retrieve io from index.js at runtime
+export const ioProxy = {
+    io: null
+}
+
 
 function Game(creatorId, creatorName, parameters){
     this.creatorId = creatorId;
@@ -15,6 +22,10 @@ function Game(creatorId, creatorName, parameters){
     this.url = `${FRONTEND_URL}/game/${this.gameId}`;
 
     this.createdAt = new Date();
+    this.startedAt = null;
+    this.endedAt = null;
+
+    this.chatMessages = ChatMessages();
 }
 
 Game.prototype.addPlayer = function(playerId){
@@ -31,6 +42,18 @@ Game.prototype.playerCount = function(){
     return this.players.size;
 }
 
+Game.prototype.addMessage = function(senderId, senderName, message){
+    const newMessage = this.chatMessages.addMessage(senderId, senderName, message);
+    ioProxy.io.to(this.gamedId).emit('chat-messages', {
+        gameId: this.gameId,
+        messages: [{...newMessage}]}
+        );
+}
+
+Game.prototype.getAllMessages = function(counterFrom=null){
+    return this.chatMessages.getAll(counterFrom);
+}
+
 /**
  * retrieve public object data representing the game, which can be sent to server
  * @returns Object
@@ -38,6 +61,7 @@ Game.prototype.playerCount = function(){
 Game.prototype.getPublicData = function(){
     const data = {...this};
     data.players = Array.from(data.players);
+    data.chatMessages = data.chatMessages.getAll();
     Object.freeze(data);
     return data;
 }
@@ -81,12 +105,23 @@ export const games = (() => {
         playerCount: () => {
             return _playerGamesIndex.size;
         },
+        getGame: (gameId) => {
+            return _games.get(gameId);
+        },
         addGame: (creatorId, creatorName, parameters) => {
             const newGame = new Game(creatorId, creatorName, parameters);
             _games.set(newGame.gameId, newGame);
             registerPlayer(creatorId, newGame.gameId)
             console.log(`After addGame there are now ${_playerGamesIndex.size} players on ${_games.size} games`);
             return newGame;
+        },
+        playerJoinGame: (playerId, gameId) => {
+            const game = _games.get(gameId);
+            if(!game){
+                return;
+            }
+            registerPlayer(playerId, game.gameId);
+            console.log(`After playerJoinGame there are now ${_playerGamesIndex.size} players on ${_games.size} games`);
         },
         playerLeaveGame: (playerId, gameId) => {
             unregisterPlayer(playerId, gameId);
