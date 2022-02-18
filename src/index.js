@@ -78,6 +78,11 @@ gameNamespace.on("connection", socket => {
         socket.emit('gameLoaded', {data: game.getPublicData()});
         // joining game room
         socket.join(game.gameId);
+        console.log('emitting test chat');
+        // console.log(gameNamespace.in('game.gamedId'));
+        // const rooms = io.of("/game").adapter.rooms;
+        socket.to(game.gameId).emit('chat-messages', 'test');
+        // io.in('/game/test').emit('chat-messages', 'test');
     });
   });
 

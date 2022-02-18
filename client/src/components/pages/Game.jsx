@@ -42,6 +42,10 @@ function Game() {
 
     socket.off('chat-messages').on('chat-messages', onChatMessages);
 
+    socket.onAny((eventName, ...args) => {
+      console.log("received " + eventName + " event with args:", args);
+    });
+
     socket.emit('loadGame', {
       playerId: getPlayerId(),
       playerName: getPlayerName(),

@@ -44,10 +44,13 @@ Game.prototype.playerCount = function(){
 
 Game.prototype.addMessage = function(senderId, senderName, message){
     const newMessage = this.chatMessages.addMessage(senderId, senderName, message);
-    ioProxy.io.to(this.gamedId).emit('chat-messages', {
+    const messageData = {
         gameId: this.gameId,
-        messages: [{...newMessage}]}
-        );
+        messages: [{...newMessage}]
+    };
+
+    console.log("emit chat message", messageData)
+    // ioProxy.io.to(this.gamedId).broadcast('chat-messages', messageData);
 }
 
 Game.prototype.getAllMessages = function(counterFrom=null){
