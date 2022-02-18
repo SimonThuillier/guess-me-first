@@ -38,6 +38,10 @@ button.join-game-card-button {
     padding: 0.5vh;
 }
 
+.card.small-card-body > .card-body {
+    padding: 8px;
+};
+
 .game-pending-container {
     border: solid;
     border-width: thin;

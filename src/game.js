@@ -49,8 +49,7 @@ Game.prototype.addMessage = function(senderId, senderName, message){
         messages: [{...newMessage}]
     };
 
-    console.log("emit chat message", messageData)
-    // ioProxy.io.to(this.gamedId).broadcast('chat-messages', messageData);
+    return messageData;
 }
 
 Game.prototype.getAllMessages = function(counterFrom=null){
@@ -107,6 +106,9 @@ export const games = (() => {
         },
         playerCount: () => {
             return _playerGamesIndex.size;
+        },
+        hasGame: (gameId) => {
+            return _games.has(gameId);
         },
         getGame: (gameId) => {
             return _games.get(gameId);

@@ -8,59 +8,61 @@ import Chat from '../organisms/Chat';
 import GameLoading from "../organisms/GameLoading";
 import GamePanel from "../organisms/GamePanel";
 
+function getGameId(){
+  let match = window.location.href.match(/\/(g_[^\/]+)$/);
+  if (!match) return null;
+  return match[1];
+}
+
+
 function Game() {
   // for fast loading new game data in case you just created it
-  const [gameData, setGameData] = useState("gameData",null);
-  const [gameStatus, setGameStatus] = useState("gameStatus",{status: "CONNECTING", message:null});
+  const [gameData, setGameData] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [gameStatus, setGameStatus] = useState({status: "CONNECTING", message:null});
   const navigate = useNavigate();
 
-  let match = window.location.href.match(/\/(g_[^\/]+)$/);
-  if (!match){
+  if (!getGameId()){
     window.location = '/unknown-game';
     return (<GameLoading gameStatus={gameStatus} />);
   }
-  const gameId = match[1];
 
-  console.log(gameId);
-  console.log(gameData);
+  const socket = sioSingleton.getSocket('/game');
 
-  const onChatMessages = (...args) => {
-    console.log('newChatMessages');
-    console.log(args[0]);
+  // called upon successful connection or reconnection 
+  const onConnect = () => {
+    socket.emit('loadGame', {
+      playerId: getPlayerId(),
+      playerName: getPlayerName(),
+      gameId: getGameId()
+    });
+    setGameStatus({status: "LOADING", message:null});
   }
 
-  const onConnect = () => {
-    const socket = sioSingleton.getSocket('/game');
+  // called upon connection or reconnection failure 
+  const onConnectFailed = (err) => {
+    setGameStatus({status: "CONNECTING", error: true, message:err.message});
+  }
+
+  // startup effect  
+  useEffect(() => {
+    const gameId = getGameId();
 
     socket.off('gameLoaded').on('gameLoaded', (...args) => {
       console.log('gameLoaded', args);
       if(!!args[0].error){
         navigate('/unknown-game');
       }
-      setGameData(args[0].data);
+      const data = args[0].data;
+      const _chatMessages = data.chatMessages;
+      data.chatMessages = null;
+      console.log(data);
+      setGameData(data);
+      // for rendering optimization purposes chatMessages are handled separately from the rest of the game data
+      setChatMessages(_chatMessages);
+      setGameStatus({status: "LOADED", message:null});
     });
 
-    socket.off('chat-messages').on('chat-messages', onChatMessages);
-
-    socket.onAny((eventName, ...args) => {
-      console.log("received " + eventName + " event with args:", args);
-    });
-
-    socket.emit('loadGame', {
-      playerId: getPlayerId(),
-      playerName: getPlayerName(),
-      gameId: gameId
-    });
-
-    setGameStatus({status: "LOADING", message:null});
-  }
-
-  const onConnectFailed = (err) => {
-    setGameStatus({status: "ERROR", message:err.message});
-  }  
-
-  useEffect(() => {
-    const socket = sioSingleton.getSocket('/game');
     if(socket.connected){
       console.log("deja co :)");
       onConnect();
@@ -71,8 +73,30 @@ function Game() {
       socket.off('connect_error').on('connect_error', onConnectFailed);
       socket.connect();
     }
+  
+    return function cleanup() {
+      const socket = sioSingleton.getSocket('/game');
+      socket.off('gameLoaded');
+      socket.off('chatMessages');
+      socket.off('connect');
+      socket.off('connect_error');
+      if(!gameId) return;
+      console.log("sending leaveGame notification to backend");
+      socket.emit('leaveGame', {gameId: gameId});
+      };
   }, []);
 
+  // chatMessage reception effect (changes after each message reception because is dependent from current messages)
+  useEffect(() => {
+    socket.off('chatMessages').on('chatMessages', (...args) => {
+      if(args[0].gameId !== getGameId()) return;
+      console.log('old chatMessages', chatMessages);
+      console.log('new ChatMessages', args[0].messages);
+      const concatMessages = [...chatMessages, ...args[0].messages];
+      console.log('concatMessages', concatMessages);
+      setChatMessages(concatMessages);
+    });
+  }, [chatMessages]);
 
 
   if(!gameData){
@@ -84,14 +108,12 @@ function Game() {
     return (<GameLoading gameStatus={gameStatus} onAlertDismiss={onAlertDismiss}/>);
   }
 
-
-
   return (
     <Layout>
         <Row>
           <Col md={8} ><GamePanel gameData={gameData} gameStatus={gameStatus}/></Col>
           <Col md={4}>
-            <Chat/>
+            <Chat messages={chatMessages}/>
           </Col>
       </Row>
     </Layout>

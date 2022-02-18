@@ -86,6 +86,6 @@ function JoinGameForm({ onSubmit }) {
 
 JoinGameForm.propTypes = {
     onSubmit: PropTypes.func.isRequired
-  };
+};
 
 export default JoinGameForm;

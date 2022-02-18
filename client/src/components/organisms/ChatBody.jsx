@@ -1,25 +1,26 @@
+import PropTypes from 'prop-types';
 import ScrollToBottom from 'react-scroll-to-bottom';
+import ChatMessage from '../atoms/ChatMessage.jsx';
 
-function ChatBody(){
 
-    const messages = [
-        {user:"bot", text:"Hello, how can I help you?"},
-    ]
+function ChatBody({messages}){
+
+    console.log("rerender chatBody", messages);
 
     return (
         <div className="chat-body">
             <ScrollToBottom>
                 {messages.map((message) => (
-                    <li>
-                        <span>{message.user}</span>
-                        <p>{message.text}</p>
-                    </li>
+                    <ChatMessage key={message.id} {...message}/>
                 ))
                 }
             </ScrollToBottom>
         </div>
     );
-
 }
+
+ChatBody.propTypes = {
+    messages: PropTypes.array.isRequired
+};
 
 export default ChatBody;
