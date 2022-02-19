@@ -9,7 +9,8 @@ import GameConfigurationForm from "../organisms/GameConfigurationForm";
 function GameConfiguration() {
   const [ownedGameConfiguration, setOwnedGameConfiguration] = useLocalStorage("ownedGameConfiguration",{
     roundNumber: 4,
-    choicesPerRound: 4
+    choicesPerRound: 4,
+    maxRoundTime: "30"
     });
 
   const navigate = useNavigate();

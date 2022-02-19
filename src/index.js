@@ -13,6 +13,8 @@ import { games, ioProxy } from './game.js';
 // and https://socket.io/docs/v3/handling-cors/ for dealing with CORS (remember its purpose isn't to bother you but to make the web safer :))
 const app = express();
 app.use(cors());
+app.use(express.static('public'));
+app.options(FRONTEND_URL, cors());
 
 const server = http.createServer(app);
 const io = new Server(server, {

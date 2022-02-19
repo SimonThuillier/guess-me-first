@@ -38,6 +38,20 @@ function GameConfigurationForm(props){
                     Nombre de choix proposés à chaque tour.
                 </Form.Text>
             </Form.Group>
+            <Form.Group className="mb-3" controlId="maxRoundTime">
+                <Form.Label>Limite de temps de tour</Form.Label>
+                <Form.Select value={formData.maxRoundTime} onChange={handleChange("maxRoundTime")}>
+                    <option value="15">15s</option>
+                    <option value="30">30s</option>
+                    <option value="45">45s</option>
+                    <option value="60">1m</option>
+                    <option value="90">1m30s</option>
+                    <option value="120">2m</option>
+                </Form.Select>
+                <Form.Text className="text-muted">
+                    Temps max d'un tour si des joueurs n'ont pas encore trouvé.
+                </Form.Text>
+            </Form.Group>
             <Button variant="primary" type="submit">
                 Creer la partie
             </Button>

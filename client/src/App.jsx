@@ -6,6 +6,7 @@ import GameCreation from './components/pages/GameCreation'
 import Game from './components/pages/Game'
 
 import NotFound from './components/pages/NotFound'
+import Test from './components/pages/Test'
 
 
 
@@ -22,6 +23,7 @@ function App() {
         <Route exact path="/" element={<Home/>} />
         <Route exact path="/game-configuration" element={<GameConfiguration/>} />
         <Route exact path="/new-game" element={<GameCreation/>} />
+        <Route exact path="/test" element={<Test/>} />
         <Route path="/game/*" element={<Game/>} />
         <Route exact path="/unknown-game" element={<NotFound game/>} />
         <Route path="*" element={<NotFound/>} />
