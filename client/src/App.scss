@@ -38,6 +38,15 @@ button.join-game-card-button {
     padding: 0.5vh;
 }
 
+.chat-messages {
+    height: 80vh;
+}
+
+#chat-form-message {
+    overflow-y: scroll;
+    height: 5vh;
+}
+
 .card.small-card-body > .card-body {
     padding: 8px;
 };

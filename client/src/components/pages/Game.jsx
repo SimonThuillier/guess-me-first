@@ -19,6 +19,9 @@ function Game() {
   // for fast loading new game data in case you just created it
   const [gameData, setGameData] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
+  // beware when using functions as state, it should be a function returned by a first function 
+  // because of lazy loading feature of react (see https://reactjs.org/docs/hooks-reference.html#usestate)
+  const [chatSubmit, setChatSubmit] = useState(() => () => {});
   const [gameStatus, setGameStatus] = useState({status: "CONNECTING", message:null});
   const navigate = useNavigate();
 
@@ -88,6 +91,17 @@ function Game() {
 
   // chatMessage reception effect (changes after each message reception because is dependent from current messages)
   useEffect(() => {
+
+    setChatSubmit(() => (message) => {
+      console.log('emit ChatMessage', message);
+      socket.emit('emitChatMessage', {
+        gameId: getGameId(),
+        playerId: getPlayerId(),
+        playerName: getPlayerName(),
+        message: message
+      });
+    });
+
     socket.off('chatMessages').on('chatMessages', (...args) => {
       if(args[0].gameId !== getGameId()) return;
       console.log('old chatMessages', chatMessages);
@@ -113,7 +127,7 @@ function Game() {
         <Row>
           <Col md={8} ><GamePanel gameData={gameData} gameStatus={gameStatus}/></Col>
           <Col md={4}>
-            <Chat messages={chatMessages}/>
+            <Chat messages={chatMessages} onSubmit={chatSubmit}/>
           </Col>
       </Row>
     </Layout>

@@ -3,7 +3,7 @@ import ChatBody from './ChatBody';
 import ChatForm from '../molecules/ChatForm';
 
 
-function Chat({messages}) {
+function Chat({messages, onSubmit}) {
     return (
         <div className="chat-container">
             <div className="chat-header-container"></div>
@@ -11,14 +11,15 @@ function Chat({messages}) {
                 <ChatBody messages={messages}/>
             </div>
             <div className="chat-form-container">
-                <ChatForm/>
+                <ChatForm onSubmit={onSubmit}/>
             </div>
         </div>
     );
 }
 
 Chat.propTypes = {
-    messages: PropTypes.array.isRequired
+    messages: PropTypes.array.isRequired,
+    onSubmit: PropTypes.func.isRequired
 };
 
 export default Chat;

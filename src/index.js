@@ -57,7 +57,7 @@ gameNamespace.on("connection", socket => {
         console.log("0");
         // dereferencing player
         games.playerLeaveGame(socketData.socketPlayerId, gameId);
-        socketData.socketGames.delete(gameId)
+        socketData.socketGames.delete(gameId);
         // if game doesn't exist anymore eg last player left it nothing more is done
         console.log(gameId);
         console.log("1", !games.hasGame(gameId));
@@ -117,12 +117,22 @@ gameNamespace.on("connection", socket => {
         // emitting game join chat message
         const messageData = game.addMessage(null, 'BOT', `${socketData.socketPlayerName} a rejoint la partie`);
         socket.to(game.gameId).emit('chatMessages', messageData);
-        //socket.emit('chatMessages', messageData);
+        socket.emit('chatMessages', messageData);
 
         // console.log(gameNamespace.in('game.gamedId'));
         // const rooms = io.of("/game").adapter.rooms;
         // socket.to(game.gameId).emit('chat-messages', 'test');
         // io.in('/game/test').emit('chat-messages', 'test');
+    });
+    socket.on('emitChatMessage', (...args) => {
+        const gameId = args[0].gameId;
+        if(!socketData.socketGames.has(gameId)){return;}
+        const game = games.getGame(gameId);
+        if(!game){return;}
+
+        const messageData = game.addMessage(socketData.socketPlayerId, socketData.socketPlayerName, args[0].message);
+        socket.to(game.gameId).emit('chatMessages', messageData);
+        socket.emit('chatMessages', messageData);
     });
   });
 

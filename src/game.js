@@ -35,6 +35,7 @@ Game.prototype.addPlayer = function(playerId){
 
 Game.prototype.removePlayer = function(playerId){
     this.players.delete(playerId);
+    console.log(this.players);
     return this;
 }
 
@@ -125,6 +126,7 @@ export const games = (() => {
             if(!game){
                 return;
             }
+            game.addPlayer(playerId);
             registerPlayer(playerId, game.gameId);
             console.log(`After playerJoinGame there are now ${_playerGamesIndex.size} players on ${_games.size} games`);
         },
