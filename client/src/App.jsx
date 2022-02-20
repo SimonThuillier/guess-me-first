@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes, useNavigate} from "react-router-dom"
-import { hasValidPlayerName } from './utils.js'
+import { hasValidPlayerName } from './utils.js';
 import Home from './components/pages/Home'
 import GameConfiguration from './components/pages/GameConfiguration'
 import GameCreation from './components/pages/GameCreation'

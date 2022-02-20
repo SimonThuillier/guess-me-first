@@ -6,6 +6,7 @@ import { useLocalStorage, getPlayerId, getPlayerName } from '../../utils';
 import { sioSingleton } from '../../sio-client';
 import Chat from '../organisms/Chat';
 import GameLoading from "../organisms/GameLoading";
+import GamePanelPending from "../organisms/GamePanelPending";
 import GamePanel from "../organisms/GamePanel";
 
 function getGameId(){
@@ -55,11 +56,11 @@ function Game() {
       console.log('gameLoaded', args);
       if(!!args[0].error){
         navigate('/unknown-game');
+        return;
       }
       const data = args[0].data;
       const _chatMessages = data.chatMessages;
       data.chatMessages = null;
-      console.log(data);
       setGameData(data);
       // for rendering optimization purposes chatMessages are handled separately from the rest of the game data
       setChatMessages(_chatMessages);
@@ -112,6 +113,18 @@ function Game() {
     });
   }, [chatMessages]);
 
+  // gameData effects, all effects during ongoing game are handled here
+  useEffect(() => {
+
+    socket.off('gameStarted').on('gameStarted', (...args) => {
+      const data = args[0];
+      console.log(data);
+      if(data.gameId !== getGameId()) return;
+      setGameData(data);
+      setGameStatus({status: "STARTED", message:null});  
+    });
+  }, [gameData]);
+
 
   if(!gameData){
     const onAlertDismiss = () => {
@@ -122,10 +135,29 @@ function Game() {
     return (<GameLoading gameStatus={gameStatus} onAlertDismiss={onAlertDismiss}/>);
   }
 
+  let gameComponent = <div>Game</div>;
+  if (!gameData.startedAt){
+    let onStart = () => {};
+    if(getPlayerId() === gameData.creatorId){
+      onStart = () => {
+        socket.emit('startGame', {gameId: getGameId()});
+      }
+    }
+
+
+    gameComponent = <GamePanelPending gameData={gameData} onStart={onStart}/>;
+  }
+  else {
+    const onGuess = (guess) => {
+      socket.emit('submitGuess', {gameId: getGameId(), guess: guess});
+    }
+    gameComponent = <GamePanel gameData={gameData} gameStatus={gameStatus} onGuess={onGuess}/>
+  }
+
   return (
     <Layout>
         <Row>
-          <Col md={8} ><GamePanel gameData={gameData} gameStatus={gameStatus}/></Col>
+          <Col md={8} >{gameComponent}</Col>
           <Col md={4}>
             <Chat messages={chatMessages} onSubmit={chatSubmit}/>
           </Col>

@@ -4,9 +4,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 
 import { PORT, CUSTOM_HEADER_KEY, FRONTEND_URL } from './const.js';
-import { games, ioProxy } from './game.js';
-
-
+import { games } from './game.js';
 
 
 // see https://socket.io/get-started/chat for basic configuration
@@ -27,21 +25,10 @@ const io = new Server(server, {
   });
 
 app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
-
-io.on('connection', (socket) => {
-    /*console.log('a user connected :)');
-    socket.on('disconnect', (socket) => {
-        console.log('a user disconnected :(');
-    });
-    socket.onAny((eventName, ...args) => {
-        console.log("received " + eventName + " event with args:", args);
-    });*/
+    res.send('Guess-me-first says hello!');
 });
 
 const gameNamespace = io.of("/game");
-ioProxy.io = io;
 
 gameNamespace.on("connection", socket => {
     console.log('a user connected :)');
@@ -52,24 +39,20 @@ gameNamespace.on("connection", socket => {
         socketPlayerName: null
     };
 
+    // general game sockets
+
     // function called either when socket is disconnected or a leaveGame event is received
     function leaveGame(gameId, reason='leave'){
-        console.log("0",socketData.socketPlayerId);
         if(!socketData.socketPlayerId){return;}
-        console.log("0");
         // dereferencing player
         games.playerLeaveGame(socketData.socketPlayerId, gameId);
         socketData.socketGames.delete(gameId);
         // if game doesn't exist anymore eg last player left it nothing more is done
-        console.log(gameId);
-        console.log("1", !games.hasGame(gameId));
         if(!games.hasGame(gameId)){return;}
-        console.log("2");
         // else emitting game leave chat message to other players
         const game = games.getGame(gameId);
         const messageData = game.addMessage(null, 'BOT', `${socketData.socketPlayerName} a quitté la partie${reason = 'disconnection' ? ' (déconnexion)' : ''}`);
         socket.to(gameId).emit('chatMessages', messageData);
-        console.log("3");
     }  
 
     socket.on('disconnect', () => {
@@ -79,6 +62,7 @@ gameNamespace.on("connection", socket => {
                 leaveGame(gameId, 'disconnection')});
         }
     });
+    
     socket.on('leaveGame', (...args) => {
         if(!!socketData.socketPlayerId){
             leaveGame(args[0].gameId, 'leave')
@@ -100,8 +84,8 @@ gameNamespace.on("connection", socket => {
         const messageData = game.addMessage(null, 'BOT', `${game.creatorName} a créé la partie`);
         socket.emit('chatMessages', messageData);
     });
+
     socket.on('loadGame', (...args) => {
-        console.log("will loadGame of args:", args[0]);
         const game = games.getGame(args[0].gameId);
         socketData.socketPlayerId = args[0].playerId;
         socketData.socketPlayerName = args[0].playerName;
@@ -120,12 +104,8 @@ gameNamespace.on("connection", socket => {
         const messageData = game.addMessage(null, 'BOT', `${socketData.socketPlayerName} a rejoint la partie`);
         socket.to(game.gameId).emit('chatMessages', messageData);
         socket.emit('chatMessages', messageData);
-
-        // console.log(gameNamespace.in('game.gamedId'));
-        // const rooms = io.of("/game").adapter.rooms;
-        // socket.to(game.gameId).emit('chat-messages', 'test');
-        // io.in('/game/test').emit('chat-messages', 'test');
     });
+
     socket.on('emitChatMessage', (...args) => {
         const gameId = args[0].gameId;
         if(!socketData.socketGames.has(gameId)){return;}
@@ -136,6 +116,66 @@ gameNamespace.on("connection", socket => {
         socket.to(game.gameId).emit('chatMessages', messageData);
         socket.emit('chatMessages', messageData);
     });
+
+    // ongoing game sockets
+    socket.on('startGame', (...args) => {
+        const game = games.getGame(args[0].gameId);
+        if(!game){
+            socket.emit('gameLoaded', {error: "Game not found"});
+            return;
+        }
+        // only the creator can start the game
+        if(game.creatorId !== socketData.socketPlayerId){return;}
+        // game can be started only one
+        if(game.isStarted()){return;}
+
+        // then let's go !
+        game.startGame();
+
+        const gameData = {...game.getPublicData()};
+        // we just don't send the chatMessages it's useless in this case
+        gameData.chatMessages = null;
+
+        // send chat start notification to all players
+        const messageData = game.addMessage(null, 'BOT', `La partie va bientôt commencer !`);
+        socket.to(game.gameId).emit('chatMessages', messageData);
+        socket.emit('chatMessages', messageData);
+
+        // send gameStarted notification and data to all players
+        socket.to(game.gameId).emit('gameStarted', gameData);
+        socket.emit('gameStarted', gameData);
+    });
+    socket.on('submitGuess', (...args) => {
+
+        // "gameId":"g_268c9492-0141-4cbc-b9b7-21622780451c","guess":"dog"
+        const game = games.getGame(args[0].gameId);
+        if(!game){
+            socket.emit('gameLoaded', {error: "Game not found"});
+            return;
+        }
+        // game has to be started
+        if(!game.isStarted()){return;}
+
+        // then let's go !
+        game.startGame();
+
+        const gameData = {...game.getPublicData()};
+        // we just don't send the chatMessages it's useless in this case
+        gameData.chatMessages = null;
+
+        // send chat start notification to all players
+        const messageData = game.addMessage(null, 'BOT', `La partie va bientôt commencer !`);
+        socket.to(game.gameId).emit('chatMessages', messageData);
+        socket.emit('chatMessages', messageData);
+
+        // send gameStarted notification and data to all players
+        socket.to(game.gameId).emit('gameStarted', gameData);
+        socket.emit('gameStarted', gameData);
+    });
+
+
+
+
   });
 
 server.listen(PORT, () => {

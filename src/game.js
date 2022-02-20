@@ -1,16 +1,16 @@
 import { v4 as uuidV4 } from "uuid";
 import { FRONTEND_URL } from './const.js';
 import { ChatMessages } from './chat.js';
+import { getNImages, getNames } from './images.js';
 
-// to contourn reference circularity issue this proxy object is used to retrieve io from index.js at runtime
-export const ioProxy = {
-    io: null
-}
+// number of seconds for the next round to start
+const ROUND_START_DELAY = 5;
 
 
 function Game(creatorId, creatorName, parameters){
     this.creatorId = creatorId;
     this.creatorName = creatorName;
+    // parameters are for example : { roundNumber: 4, choicesPerRound: 4, maxRoundTime: "30"}
     this.parameters = parameters;
 
     this.gameId = `g_${uuidV4()}`;
@@ -22,10 +22,14 @@ function Game(creatorId, creatorName, parameters){
     this.url = `${FRONTEND_URL}/game/${this.gameId}`;
 
     this.createdAt = new Date();
+    this.chatMessages = ChatMessages();
     this.startedAt = null;
     this.endedAt = null;
 
-    this.chatMessages = ChatMessages();
+    // active game Data
+    this._images = null;
+    this.scoreboard = null;
+    this.currentRound = null; 
 }
 
 Game.prototype.addPlayer = function(playerId){
@@ -57,6 +61,40 @@ Game.prototype.getAllMessages = function(counterFrom=null){
     return this.chatMessages.getAll(counterFrom);
 }
 
+Game.prototype.startGame = function(){
+    if(!!this.startedAt){return;}
+    this.startedAt = new Date();
+
+    this.scoreboard = {};
+    this.players.forEach(playerId => {
+        this.scoreboard[playerId] = 0;
+    });
+    // define images for the game and their choices
+    this._images = getNImages(this.parameters.roundNumber);
+    for (const element of this._images) {
+        element.choices = getNames(element.name, this.parameters.choicesPerRound);
+    }
+    // define next round
+    this.defineNextRound();
+}
+
+Game.prototype.isStarted = function(){
+    return !!this.startedAt;
+}
+
+Game.prototype.defineNextRound = function(){
+    const roundNumber = this.currentRound ? this.currentRound.roundNumber + 1 : 1;
+    this.currentRound = {
+        roundNumber: roundNumber,
+        image: this._images[roundNumber - 1],
+        startAt : Math.floor(Date.now() / 1000) + ROUND_START_DELAY
+    }
+}
+
+Game.prototype.playerSubmitGuess = function(playerId, guess){
+    // TODO...
+}    
+
 /**
  * retrieve public object data representing the game, which can be sent to server
  * @returns Object
@@ -65,6 +103,15 @@ Game.prototype.getPublicData = function(){
     const data = {...this};
     data.players = Array.from(data.players);
     data.chatMessages = data.chatMessages.getAll();
+    // offuscate active game data
+    data._images = null;
+    if(data.currentRound){
+        data.currentRound = {...data.currentRound};
+        data.currentRound.image = {...data.currentRound.image};
+        data.currentRound.image.name = null;
+    }
+
+
     Object.freeze(data);
     return data;
 }

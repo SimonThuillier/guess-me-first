@@ -12,10 +12,8 @@ function ChatForm({onSubmit}){
         document.removeEventListener('keydown', onKeyDown);
         const _onKeyDown = () => (e) => {
             if(!e || !e.key) return;
-            console.log("key pressed", e.key);
             if (e.key === "Enter"){
                 const message = (e.target.value || "").trim();
-                console.log("messageLength", message.length);
                 if(message.length < 1) return;
                 onSubmit(message);
                 e.target.value = null;
@@ -24,13 +22,13 @@ function ChatForm({onSubmit}){
         setOnKeyDown(_onKeyDown);
 
         const _onFocus = () => (e) => {
-            console.log("focus", onKeyDown);
+            //console.log("focus", onKeyDown);
             document.addEventListener("keydown", onKeyDown);
         }
         setOnFocus(_onFocus);
 
         const _onBlur = () => (e) => {
-            console.log("blur");
+            //console.log("blur");
             document.removeEventListener("keydown", onKeyDown);
         }
         setOnBlur(_onBlur);

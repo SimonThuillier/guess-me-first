@@ -7,11 +7,15 @@ import { useLocalStorage, getPlayerId } from '../../utils';
 import NameForm from '../molecules/NameForm'
 
 
-
+/**
+ * this panel handles game before it starts
+ * @param {*} props 
+ * @returns 
+ */
 function GamePanelPending(props) {
 
   const [copyButtonVariant, setCopyButtonVariant] = useState("secondary");
-  const {gameData} = props;
+  const {gameData, onStart} = props;
 
   if(gameData.creatorId !== getPlayerId()){
     return (
@@ -25,8 +29,6 @@ function GamePanelPending(props) {
       </div>
     );
   }
-
-
 
   const onCopyButtonClick = () => {
     navigator.clipboard.writeText(gameData.url);
@@ -45,13 +47,14 @@ function GamePanelPending(props) {
             <Button title="Copiez le lien" onClick={onCopyButtonClick} variant={copyButtonVariant}><FaCopy /></Button>
           </Card.Body>
         </Card>
-        <div><Button onClick={() => {}} variant="primary">Lancer la partie !</Button></div>
+        <div><Button onClick={onStart} variant="primary">Lancer la partie !</Button></div>
     </div>
   );
 }
 
 GamePanelPending.propTypes = {
     gameData: PropTypes.object.isRequired,
+    onStart: PropTypes.func.isRequired,
 };
 
 export default GamePanelPending
