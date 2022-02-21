@@ -3,7 +3,7 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 
-import { PORT, CUSTOM_HEADER_KEY, FRONTEND_URL } from './const.js';
+import { HOSTNAME, PORT, CUSTOM_HEADER_KEY, FRONTEND_URL } from './const.js';
 import { games } from './game.js';
 
 
@@ -177,29 +177,24 @@ gameNamespace.on("connection", socket => {
                 messageData = game.addMessage(null, 'BOT', `Le tour ${game.currentRound.roundNumber} est terminé !`);
                 socket.to(game.gameId).emit('chatMessages', messageData);
                 socket.emit('chatMessages', messageData);
+                // goto next round
+                game.defineNextRound();
+                const gameData = {...game.getPublicData()};
+                // we just don't send the chatMessages it's useless in this case
+                gameData.chatMessages = null;
+                // send chat start notification to all players
+                messageData = game.addMessage(null, 'BOT', `Le tour ${game.currentRound.roundNumber} va bientôt commencer !`);
+                socket.to(game.gameId).emit('chatMessages', messageData);
+                socket.emit('chatMessages', messageData);
+
+                // send gameUpdate notification and data to all players
+                socket.to(game.gameId).emit('gameUpdate', gameData);
+                socket.emit('gameUpdate', gameData);
             }
-            // goto next round
-            game.defineNextRound();
-            const gameData = {...game.getPublicData()};
-            // we just don't send the chatMessages it's useless in this case
-            gameData.chatMessages = null;
-            // send chat start notification to all players
-            messageData = game.addMessage(null, 'BOT', `Le tour ${game.currentRound.roundNumber} va bientôt commencer !`);
-            socket.to(game.gameId).emit('chatMessages', messageData);
-            socket.emit('chatMessages', messageData);
-
-            // send gameUpdate notification and data to all players
-            socket.to(game.gameId).emit('gameUpdate', gameData);
-            socket.emit('gameUpdate', gameData);
         }
-
     });
-
-
-
-
   });
 
-server.listen(PORT, () => {
+server.listen(PORT, HOSTNAME, () => {
     console.log(`express server is running on port ${PORT}`);
 });
