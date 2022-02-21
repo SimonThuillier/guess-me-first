@@ -94,7 +94,7 @@ gameNamespace.on("connection", socket => {
             return;
         }
         // referencing new player
-        games.playerJoinGame(socketData.socketPlayerId, game.gameId);
+        games.playerJoinGame(socketData.socketPlayerId, socketData.socketPlayerName, game.gameId);
         socketData.socketGames.add(game.gameId);
         // notify successful game loading - sending game data
         socket.emit('gameLoaded', {data: game.getPublicData()});
@@ -155,22 +155,44 @@ gameNamespace.on("connection", socket => {
         }
         // game has to be started
         if(!game.isStarted()){return;}
+        // player has to be a valid playing player in this game
+        if(!game.isPlayingPlayer(socketData.socketPlayerId)){
+            socket.emit('gameLoaded', {error: "Game not found"});
+            return;
+        }
+        // ok then submit guess
+        const result = game.playerSubmitGuess(socketData.socketPlayerId, args[0].guess);
+        // ineffective action, stop here
+        if(result === null){return;}
+        // inform player of the result
+        socket.emit('roundUpdate', {gameId: game.gameId,roundData: game.getPlayerData(socketData.socketPlayerId)});
+        // if guess is correct, more actions are necessary
+        if(result === true){
+            // notify all players
+            let messageData = game.addMessage(null, 'BOT', `${socketData.socketPlayerName} a trouvé la réponse !`);
+            socket.to(game.gameId).emit('chatMessages', messageData);
+            socket.emit('chatMessages', messageData);
+            // check if round is over
+            if(game.currentRoundIsOver()){
+                messageData = game.addMessage(null, 'BOT', `Le tour ${game.currentRound.roundNumber} est terminé !`);
+                socket.to(game.gameId).emit('chatMessages', messageData);
+                socket.emit('chatMessages', messageData);
+            }
+            // goto next round
+            game.defineNextRound();
+            const gameData = {...game.getPublicData()};
+            // we just don't send the chatMessages it's useless in this case
+            gameData.chatMessages = null;
+            // send chat start notification to all players
+            messageData = game.addMessage(null, 'BOT', `Le tour ${game.currentRound.roundNumber} va bientôt commencer !`);
+            socket.to(game.gameId).emit('chatMessages', messageData);
+            socket.emit('chatMessages', messageData);
 
-        // then let's go !
-        game.startGame();
+            // send gameUpdate notification and data to all players
+            socket.to(game.gameId).emit('gameUpdate', gameData);
+            socket.emit('gameUpdate', gameData);
+        }
 
-        const gameData = {...game.getPublicData()};
-        // we just don't send the chatMessages it's useless in this case
-        gameData.chatMessages = null;
-
-        // send chat start notification to all players
-        const messageData = game.addMessage(null, 'BOT', `La partie va bientôt commencer !`);
-        socket.to(game.gameId).emit('chatMessages', messageData);
-        socket.emit('chatMessages', messageData);
-
-        // send gameStarted notification and data to all players
-        socket.to(game.gameId).emit('gameStarted', gameData);
-        socket.emit('gameStarted', gameData);
     });
 
 

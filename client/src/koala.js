@@ -28,6 +28,25 @@ export const koala = {
   version: '1.8.2'
 };
 
+const getDims = () =>{
+    let maxSize = 512;
+    console.log(window.innerWidth);
+
+    let minSize = 4;
+
+    if (window.innerWidth < 550) {
+      //maxSize = Math.ceil(0.8 * window.innerWidth);
+      //maxSize = maxSize - (maxSize % minSize);
+      // must always be divisble by two
+      maxSize=256;
+      console.log("maxSize: " + maxSize);
+    }
+
+    let dim = maxSize / minSize;
+
+    return {maxSize, minSize, dim};
+}
+
 (function() {
   function array2d(w, h) {
     var a = [];
@@ -136,12 +155,11 @@ export const koala = {
   }
 
   // Main code
-  var vis,
-      maxSize = 512,
-      minSize = 4,
-      dim = maxSize / minSize;
+  let vis;
 
   koala.loadImage = function(imageData) {
+
+    const {maxSize, minSize, dim} = getDims();
     // Create a canvas for image data resizing and extraction
     var canvas = document.createElement('canvas').getContext('2d');
     // Draw the image into the corner, resizing it to dim x dim
@@ -152,7 +170,15 @@ export const koala = {
     return canvas.getImageData(0, 0, dim, dim).data;
   };
 
+  koala.clear = function(){
+    if(!koala.current) return;
+
+  }
+
   koala.makeCircles = function(selector, colorData, onEvent) {
+
+    let {maxSize, minSize, dim} = getDims();
+
     onEvent = onEvent || function() {};
 
     var splitableByLayer = [],
@@ -176,19 +202,28 @@ export const koala = {
 
     // Make sure that the SVG exists and is empty
     if (!vis) {
+      console.log("not vis");
       // Create the SVG ellement
       vis = d3.select(selector)
         .append("svg")
           .attr("width", maxSize)
           .attr("height", maxSize);
     } else {
+      console.log("vis");
       vis.selectAll('circle')
         .remove();
     }
 
+    console.log(dim);
+
     // Got the data now build the tree
     var finestLayer = array2d(dim, dim);
+    console.log(finestLayer);
     var size = minSize;
+
+    console.log(dim);
+    
+
 
     // Start off by populating the base (leaf) layer
     var xi, yi, t = 0, color;
@@ -224,6 +259,8 @@ export const koala = {
       currentLayer++;
       prevLayer = layer;
     }
+
+    console.log(dim);
 
     // Create the initial circle
     Circle.addToVis(vis, [layer(0, 0)], true);
@@ -323,5 +360,17 @@ export const koala = {
       .on('touchmove.koala', onTouchMove)
       .on('touchend.koala', onTouchEnd)
       .on('touchcancel.koala', onTouchEnd);
+
+      return function cleanup(){
+        console.log("in koala cleanup");
+        d3.select(document.body)
+          .on('mousemove.koala', null)
+          .on('touchmove.koala', null)
+          .on('touchend.koala', null)
+          .on('touchcancel.koala', null);
+    
+          d3.select(selector).selectAll("*").remove();
+          vis = null;
+      }
   };
 })();

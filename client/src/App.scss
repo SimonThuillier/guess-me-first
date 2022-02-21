@@ -51,6 +51,14 @@ button.join-game-card-button {
     padding: 8px;
 };
 
+.game-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 3vh;
+}
+
 .game-pending-container {
     border: solid;
     border-width: thin;
@@ -67,7 +75,46 @@ button.join-game-card-button {
    flex-basis: auto; 
 }
 
-#game-dots {
-    width: 512px;
-    height:512px;
+.game-panel-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
+
+@media (max-width: 549px) {
+    #game-dots {
+        width: 256px;
+        height:256px;
+    }
+}
+
+@media (min-width: 550px) {
+    #game-dots {
+        width: 512px;
+        height:512px;
+    }
+}
+
+.game-footer-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 5vh;
+}
+
+.game-footer-choices-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.game-footer-choice-container {
+    padding-left: 1vh;
+    padding-right: 1vh;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+}
+
+

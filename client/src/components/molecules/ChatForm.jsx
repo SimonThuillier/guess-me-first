@@ -8,10 +8,23 @@ function ChatForm({onSubmit}){
     const [onFocus, setOnFocus] = useState(() => () => {});
     const [onBlur, setOnBlur] = useState(() => () => {});
 
+    const onKeyDown2 = (e) => {
+        if(!e || !e.key) return;
+        // console.log(e.key, onSubmit);
+        if (e.key === "Enter"){
+            const message = (e.target.value || "").trim();
+            if(message.length < 1) return;
+            onSubmit(message);
+            e.target.value = null;
+        }
+    }
+
+    // TODO : probably utterly useless , delete later 
     useEffect(()=> {
         document.removeEventListener('keydown', onKeyDown);
         const _onKeyDown = () => (e) => {
             if(!e || !e.key) return;
+            console.log(e.key, onSubmit);
             if (e.key === "Enter"){
                 const message = (e.target.value || "").trim();
                 if(message.length < 1) return;
@@ -22,14 +35,17 @@ function ChatForm({onSubmit}){
         setOnKeyDown(_onKeyDown);
 
         const _onFocus = () => (e) => {
-            //console.log("focus", onKeyDown);
-            document.addEventListener("keydown", onKeyDown);
+            console.log("focus", onKeyDown);
+
+            console.log(document.getElementById("chat-form-message"));
+
+            document.getElementById("chat-form-message").addEventListener("keydown", onKeyDown);
         }
         setOnFocus(_onFocus);
 
         const _onBlur = () => (e) => {
-            //console.log("blur");
-            document.removeEventListener("keydown", onKeyDown);
+            console.log("blur");
+            document.getElementById("chat-form-message").removeEventListener("keydown", onKeyDown);
         }
         setOnBlur(_onBlur);
 
@@ -38,7 +54,9 @@ function ChatForm({onSubmit}){
     // component end cleaning
     useEffect(() => {
         return () => {
-            document.removeEventListener('keydown', onKeyDown);
+            if(!!document.getElementById("chat-form-message")){
+                document.getElementById("chat-form-message").removeEventListener('keydown', onKeyDown);
+            }
         }
     });
 
@@ -50,6 +68,7 @@ function ChatForm({onSubmit}){
         class="form-control"
         onFocus={onFocus}
         onBlur={onBlur}
+        onKeyDown={onKeyDown2}
         />
     )
 }

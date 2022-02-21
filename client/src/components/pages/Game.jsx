@@ -1,13 +1,17 @@
 import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
-import {Row, Col} from "react-bootstrap";
+import {Row, Col, Toast, ToastContainer, Button, Offcanvas} from "react-bootstrap";
 import Layout from '../Layout';
 import { useLocalStorage, getPlayerId, getPlayerName } from '../../utils';
 import { sioSingleton } from '../../sio-client';
-import Chat from '../organisms/Chat';
+
 import GameLoading from "../organisms/GameLoading";
 import GamePanelPending from "../organisms/GamePanelPending";
 import GamePanel from "../organisms/GamePanel";
+import GameOffCanvas from "../organisms/GameOffCanvas";
+import GameToast from "../molecules/GameToast";
+import GameFooter from '../molecules/GameFooter';
+
 
 function getGameId(){
   let match = window.location.href.match(/\/(g_[^\/]+)$/);
@@ -15,15 +19,23 @@ function getGameId(){
   return match[1];
 }
 
+const defaultRoundData = {goodChoice: null, hasCompletedRound: false, wrongChoices: []}
 
 function Game() {
-  // for fast loading new game data in case you just created it
+  // public general gameData
   const [gameData, setGameData] = useState(null);
+  // round - player specific - Data used during ongoing game
+  const [roundData, setRoundData] = useState({...defaultRoundData});
+  // chat data
   const [chatMessages, setChatMessages] = useState([]);
   // beware when using functions as state, it should be a function returned by a first function 
   // because of lazy loading feature of react (see https://reactjs.org/docs/hooks-reference.html#usestate)
   const [chatSubmit, setChatSubmit] = useState(() => () => {});
   const [gameStatus, setGameStatus] = useState({status: "CONNECTING", message:null});
+
+  const [showOffCanvas, setShowOffCanvas] = useState(false);
+
+
   const navigate = useNavigate();
 
   if (!getGameId()){
@@ -123,7 +135,32 @@ function Game() {
       setGameData(data);
       setGameStatus({status: "STARTED", message:null});  
     });
-  }, [gameData]);
+
+    socket.off('roundUpdate').on('roundUpdate', (...args) => {
+      const data = args[0];
+      
+      if(data.gameId !== getGameId()) return;
+      console.log("roundUpdate received");
+      setRoundData(data.roundData);
+    });
+
+    socket.off('gameUpdate').on('gameUpdate', (...args) => {
+      const data = args[0];
+      if(data.gameId !== getGameId()) return;
+      console.log("gameUpdate received");
+      if(gameData.currentRound.roundNumber !== data.currentRound.roundNumber){
+        setRoundData({...defaultRoundData});
+      }
+      setGameData(data);
+    });
+
+
+    return () => {
+      socket.off('gameStarted');
+      socket.off('roundUpdate');
+      socket.off('gameUpdate');
+    }
+  }, [gameData, roundData]);
 
 
   if(!gameData){
@@ -143,25 +180,32 @@ function Game() {
         socket.emit('startGame', {gameId: getGameId()});
       }
     }
-
-
     gameComponent = <GamePanelPending gameData={gameData} onStart={onStart}/>;
   }
   else {
     const onGuess = (guess) => {
       socket.emit('submitGuess', {gameId: getGameId(), guess: guess});
     }
-    gameComponent = <GamePanel gameData={gameData} gameStatus={gameStatus} onGuess={onGuess}/>
+    gameComponent = 
+      <div>
+        <GamePanel gameData={gameData} roundData={roundData} gameStatus={gameStatus} onGuess={onGuess}/>
+        <GameFooter choices={gameData.currentRound.image.choices} roundData={roundData} onGuess={onGuess} />
+      </div>
   }
 
   return (
     <Layout>
-        <Row>
-          <Col md={8} >{gameComponent}</Col>
-          <Col md={4}>
-            <Chat messages={chatMessages} onSubmit={chatSubmit}/>
-          </Col>
-      </Row>
+      <div className="game-container">
+        {gameComponent}
+      </div>
+      <GameToast messages={chatMessages} hasStarted={!!gameData.startedAt} setShowOffCanvas={setShowOffCanvas}/>
+      <GameOffCanvas 
+      show={showOffCanvas} 
+      setShow={setShowOffCanvas} 
+      messages={chatMessages} 
+      chatSubmit={chatSubmit}
+      scoreboard={gameData.scoreboard}
+      />
     </Layout>
   )
 }

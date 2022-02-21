@@ -7,7 +7,8 @@
   "scripts": {
     "start": "DEBUG=engine:* nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test-fs": "nodemon src/images.js"
+    "test-fs": "nodemon src/images.js",
+    "test-game": "nodemon test/game.js"
   },
   "repository": {
     "type": "git",

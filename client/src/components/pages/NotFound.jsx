@@ -11,7 +11,7 @@ function NotFound(props) {
   useEffect(() => {
     setTimeout(() => {
       navigate("/");
-      }, 2500);
+      }, 1500);
     }, []);
 
   return (

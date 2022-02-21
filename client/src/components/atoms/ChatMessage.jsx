@@ -1,12 +1,20 @@
 import PropTypes from 'prop-types';
 import {Badge, Card} from "react-bootstrap";
 
-function ChatMessage({id, senderId, senderName, message, createdAt}){
-    console.log(message);
+function ChatMessage({id, senderId, senderName, message, createdAt, abridged}){
+
+    let actualMessage = message;
+
+    if(!!abridged){
+        if(message.length > abridged){
+            actualMessage = message.substring(0,abridged) + "...";
+        }
+    }
+
     // admin messages
     if(!senderId){
         return (
-            <Card className="small-card-body" body><i>{message}</i></Card>
+            <Card className="small-card-body" body><i>{actualMessage}</i></Card>
         )
     }
 
@@ -14,7 +22,7 @@ function ChatMessage({id, senderId, senderName, message, createdAt}){
     return (
         <Card className="small-card-body" body>
             <Badge bg="secondary">{senderName}</Badge>&nbsp;
-            {message}
+            {actualMessage}
         </Card>
     )
 }

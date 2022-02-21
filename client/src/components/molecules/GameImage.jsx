@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {koala} from '../../koala.js';
 import {BACKEND_URL} from '../../sio-client.js';
 
@@ -9,24 +9,37 @@ function GameImage({url, started}) {
 
       console.log('execute gameimage effect', url);
 
+      const cleanup ={func: ()=>{}};
+      
+
       const loadImage = () => {
         console.log('on loading script');
-        var img = new Image();
+        const img = new Image();
         img.crossOrigin = "Anonymous";
         img.onload = function() {
-        console.log('on loading image');
-        var colorData;
-        try {
-            colorData = koala.loadImage(this);
-        } catch (e) {
-            colorData = null;
-            alert(e);
-        }
-        // console.log(colorData);
-        if (colorData) {
-            koala.makeCircles("#game-dots", colorData, () => {});
-        }
-        };
+        console.log(`on loading image ${url}`);
+        
+        const makeCircles = (img) => {
+          var colorData;
+          try {
+            colorData = koala.loadImage(img);
+          } catch (e) {
+            //alert(e);
+            return false;
+          }
+          if (!colorData) {return false;}
+          console.log("koala make circles");
+          const koalaCleanup = koala.makeCircles("#game-dots", colorData, () => {});
+          cleanup.func = () => {
+            koalaCleanup();
+            this.remove();
+          };
+          return true;
+          }
+          if(!makeCircles(this)){
+            setTimeout(() => {makeCircles(this)}, 1000);
+          }
+        }.bind(img);
         img.src = url;
       }
 
@@ -43,6 +56,8 @@ function GameImage({url, started}) {
 
       return () => {
         console.log('execute gameimage cleanup', url);
+        console.log(cleanup.func);
+        cleanup.func();
       }
 
 

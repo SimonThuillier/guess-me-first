@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {Button, Row, Col} from "react-bootstrap";
 import { useLocalStorage } from '../../utils';
 import GameImage from '../molecules/GameImage';
-import GameFooter from '../molecules/GameFooter';
+
 
 /**
  * this Panel handles ongoing game after it started and before it ends
@@ -12,7 +12,7 @@ import GameFooter from '../molecules/GameFooter';
  * @returns 
  */
 function GamePanel(props) {
-  const {gameData, onGuess} = props; 
+  const {gameData, onGuess, roundData} = props; 
   // once game has started there is a current round
   const {currentRound} = gameData;
   const roundStartAt = currentRound.startAt;
@@ -22,7 +22,6 @@ function GamePanel(props) {
   return (
     <div className="game-panel-container">
       <GameImage url={currentRound.image.url} started={false} />
-      <GameFooter choices={currentRound.image.choices} onGuess={onGuess} />
     </div>  
   );
 }
