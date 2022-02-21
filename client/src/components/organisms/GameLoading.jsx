@@ -9,7 +9,7 @@ const GameLoading = (props) => {
 
   let subComponent = <h1>Chargement de la partie...</h1>;
 
-  console.log(gameStatus);
+  // console.log(gameStatus);
 
   if (gameStatus.status === "ERROR"){
       subComponent = <GameStatusAlert

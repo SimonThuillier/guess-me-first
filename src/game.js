@@ -3,14 +3,11 @@ import { FRONTEND_URL } from './const.js';
 import { ChatMessages } from './chat.js';
 import { getNImages, getNames } from './images.js';
 
-// number of seconds for the next round to start
-const ROUND_START_DELAY = 5;
-
 
 function Game(creatorId, creatorName, parameters){
     this.creatorId = creatorId;
     this.creatorName = creatorName;
-    // parameters are for example : { roundNumber: 4, choicesPerRound: 4, maxRoundTime: "30"}
+    // parameters are for example : { roundNumber: 4, choicesPerRound: 4, maxRoundTime: "30", secondsBetweenRound: 5}
     this.parameters = parameters;
 
     this.gameId = `g_${uuidV4()}`;
@@ -105,7 +102,7 @@ Game.prototype.defineNextRound = function(){
     this.currentRound = {
         roundNumber: roundNumber,
         image: this._images[roundNumber - 1],
-        startAt : Math.floor(Date.now() / 1000) + ROUND_START_DELAY,
+        startAt : Math.floor(Date.now() / 1000) + Number(this.parameters.secondsBetweenRound || 5),
         nextGoodGuessBonus: this.baseGoodGuessBonus
     }
 
@@ -156,8 +153,8 @@ Game.prototype.playerSubmitGuess = function(playerId, guess){
         this.playersGameData[playerId].hasCompletedRound = true;
         return true;
     } else {
-        this.scoreboard[playerId].score -= 1;
         this.playersGameData[playerId].wrongChoices.push(guess);
+        this.scoreboard[playerId].score -= (this.playersGameData[playerId].wrongChoices.length);
         return false;
     }
 }

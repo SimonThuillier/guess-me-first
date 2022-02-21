@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { v4 as uuidV4 } from "uuid";
 
+export function getCurrentTimestamp(){
+  return Math.floor(Date.now() / 1000)
+}
+
 export function useLocalStorage(key, initialValue) {
     // State to store our value
     // Pass initial state function to useState so logic is only executed once

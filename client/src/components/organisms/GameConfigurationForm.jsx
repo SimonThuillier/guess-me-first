@@ -52,8 +52,15 @@ function GameConfigurationForm(props){
                     Temps max d'un tour si des joueurs n'ont pas encore trouvé.
                 </Form.Text>
             </Form.Group>
+            <Form.Group className="mb-3" controlId="secondsBetweenRound">
+                <Form.Label>Intervalle entre les tours</Form.Label>
+                <Form.Control type="number" min="0" max="600" value={formData.secondsBetweenRound} onChange={handleChange("secondsBetweenRound")}/>
+                <Form.Text className="text-muted">
+                    Nombre de secondes entre la fin d'un tour et le début du suivant.
+                </Form.Text>
+            </Form.Group>
             <Button variant="primary" type="submit">
-                Creer la partie
+                Créer la partie
             </Button>
         </Form>
     )

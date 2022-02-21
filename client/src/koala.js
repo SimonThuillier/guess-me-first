@@ -1,5 +1,7 @@
 "use strict";
 
+import { getCurrentTimestamp } from "./utils";
+
 /*
 * Thank you Vadim Ogievetsky from Simon Thuillier
 * I'll do what I can to pursue your labor of love with these koalas
@@ -39,7 +41,8 @@ const getDims = () =>{
       //maxSize = maxSize - (maxSize % minSize);
       // must always be divisble by two
       maxSize=256;
-      console.log("maxSize: " + maxSize);
+      minSize=2;
+      //console.log("maxSize: " + maxSize);
     }
 
     let dim = maxSize / minSize;
@@ -81,6 +84,67 @@ const getDims = () =>{
   koala.supportsSVG = function() {
     return !!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect;
   };
+
+  function LoadingCircle(selector, size, startAt, onTerminate) {
+
+    this.container = d3.select(selector);
+    this.vis = this.container.append("svg")
+    .attr("width", size)
+    .attr("height", size);
+    this.size = size;
+    this.startAt = startAt;
+    this.changeIntervalId = null;
+    this._text = null;
+
+    this.vis.append('circle').attr('cx', size/2)
+    .attr('cy', size/2)
+    .attr('r',`${size/2}px`)
+    .style('fill', '#6c757d')
+    .style("opacity", "0")
+    .transition()
+    .duration(800)
+    .style("opacity", "1"); 
+
+    const delta = this.startAt - getCurrentTimestamp();
+    const message = delta > 0 ? `${delta}` : '0';
+
+    this._text = this.vis.append('text')
+    .attr('x', size/2)
+    .attr('y', size/2)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
+    .text(message)
+    .style('font-size', size>=512 ? '20em' : '10em')
+    .style('font-weight', 'normal')
+    .style('fill', '#eee');
+
+    this._text
+    .style("opacity", "0")
+    .transition()
+    .duration(800)
+    .style("opacity", "1");
+
+    function load(){
+      if(!this._text) return;
+      const delta = this.startAt - getCurrentTimestamp();
+      if(delta <= 0){
+        this._text.text("0");
+        if(!!this.changeIntervalId){
+          clearInterval(this.changeIntervalId);
+          this.changeIntervalId = null;
+          this._text = null;
+        }
+        this.container.selectAll("*").remove();
+        onTerminate();
+        return;
+      }
+      const message = `${delta}`;
+      this._text.text(message);
+    }
+
+    this.changeIntervalId = setInterval(load.bind(this), 100);
+  }
+
 
   function Circle(vis, xi, yi, size, color, children, layer, onSplit) {
     this.vis = vis;
@@ -172,7 +236,12 @@ const getDims = () =>{
 
   koala.clear = function(){
     if(!koala.current) return;
+  }
 
+  koala.makeLoadingCircle = function(selector, startAt, onTerminate= () => {}) {
+    const {maxSize, minSize, dim} = getDims();
+    d3.select(selector).selectAll("*").remove();
+    const loadingCircle = new LoadingCircle(selector, maxSize, startAt, onTerminate);      
   }
 
   koala.makeCircles = function(selector, colorData, onEvent) {
@@ -202,26 +271,26 @@ const getDims = () =>{
 
     // Make sure that the SVG exists and is empty
     if (!vis) {
-      console.log("not vis");
+      //console.log("not vis");
       // Create the SVG ellement
       vis = d3.select(selector)
         .append("svg")
           .attr("width", maxSize)
           .attr("height", maxSize);
     } else {
-      console.log("vis");
+      //console.log("vis");
       vis.selectAll('circle')
         .remove();
     }
 
-    console.log(dim);
+    //console.log(dim);
 
     // Got the data now build the tree
     var finestLayer = array2d(dim, dim);
     console.log(finestLayer);
     var size = minSize;
 
-    console.log(dim);
+    //console.log(dim);
     
 
 
@@ -260,7 +329,7 @@ const getDims = () =>{
       prevLayer = layer;
     }
 
-    console.log(dim);
+    //console.log(dim);
 
     // Create the initial circle
     Circle.addToVis(vis, [layer(0, 0)], true);
@@ -355,7 +424,7 @@ const getDims = () =>{
     }
 
     // Initialize interaction
-    d3.select(document.body)
+    d3.select("#game-dots")
       .on('mousemove.koala', onMouseMove)
       .on('touchmove.koala', onTouchMove)
       .on('touchend.koala', onTouchEnd)
@@ -363,7 +432,7 @@ const getDims = () =>{
 
       return function cleanup(){
         console.log("in koala cleanup");
-        d3.select(document.body)
+        d3.select("#game-dots")
           .on('mousemove.koala', null)
           .on('touchmove.koala', null)
           .on('touchend.koala', null)

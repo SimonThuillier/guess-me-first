@@ -38,10 +38,6 @@ button.join-game-card-button {
     padding: 0.5vh;
 }
 
-.chat-messages {
-    height: 80vh;
-}
-
 #chat-form-message {
     overflow-y: scroll;
     height: 5vh;
@@ -87,12 +83,18 @@ button.join-game-card-button {
         width: 256px;
         height:256px;
     }
+    .chat-messages {
+        height: 75vh;
+    }
 }
 
 @media (min-width: 550px) {
     #game-dots {
         width: 512px;
         height:512px;
+    }
+    .chat-messages {
+        height: 80vh;
     }
 }
 
@@ -101,10 +103,11 @@ button.join-game-card-button {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding-top: 5vh;
+    padding-top: 2vh;
 }
 
 .game-footer-choices-container {
+    padding-top: 2vh;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;

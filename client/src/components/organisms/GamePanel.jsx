@@ -11,17 +11,11 @@ import GameImage from '../molecules/GameImage';
  * @param {*} props 
  * @returns 
  */
-function GamePanel(props) {
-  const {gameData, onGuess, roundData} = props; 
-  // once game has started there is a current round
-  const {currentRound} = gameData;
-  const roundStartAt = currentRound.startAt;
-  
-  console.log('gameData in panel', gameData);
+function GamePanel({url, startAt}) {
 
   return (
     <div className="game-panel-container">
-      <GameImage url={currentRound.image.url} started={false} />
+      <GameImage url={url} startAt={startAt} />
     </div>  
   );
 }

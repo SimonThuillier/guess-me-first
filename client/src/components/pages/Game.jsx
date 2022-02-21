@@ -140,7 +140,6 @@ function Game() {
       const data = args[0];
       
       if(data.gameId !== getGameId()) return;
-      console.log("roundUpdate received");
       setRoundData(data.roundData);
     });
 
@@ -149,6 +148,8 @@ function Game() {
       if(data.gameId !== getGameId()) return;
       console.log("gameUpdate received");
       if(gameData.currentRound.roundNumber !== data.currentRound.roundNumber){
+        console.log("roundUpdate received", data.currentRound);
+        console.log("current timestamp", Math.floor(Date.now() / 1000));
         setRoundData({...defaultRoundData});
       }
       setGameData(data);
@@ -188,8 +189,13 @@ function Game() {
     }
     gameComponent = 
       <div>
-        <GamePanel gameData={gameData} roundData={roundData} gameStatus={gameStatus} onGuess={onGuess}/>
-        <GameFooter choices={gameData.currentRound.image.choices} roundData={roundData} onGuess={onGuess} />
+        <GamePanel url={gameData.currentRound.image.url} startAt={gameData.currentRound.startAt}/>
+        <GameFooter 
+        choices={gameData.currentRound.image.choices} 
+        startAt={gameData.currentRound.startAt}
+        roundData={roundData} 
+        onGuess={onGuess} 
+        />
       </div>
   }
 

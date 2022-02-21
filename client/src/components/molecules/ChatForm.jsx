@@ -65,7 +65,7 @@ function ChatForm({onSubmit}){
         id="chat-form-message"
         placeholder="Envoyer un message" 
         type="textarea"  
-        class="form-control"
+        className="form-control"
         onFocus={onFocus}
         onBlur={onBlur}
         onKeyDown={onKeyDown2}

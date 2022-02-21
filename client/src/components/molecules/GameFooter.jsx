@@ -1,14 +1,20 @@
 import {Button } from "react-bootstrap";
+import {getCurrentTimestamp} from '../../utils.js';
 
 
-function GameFooter({choices, onGuess, roundData}){
+function GameFooter({choices, onGuess, roundData, startAt}){
 
     console.log("roundData", roundData);
     // roundData : goodChoice: null, hasCompletedRound: false, wrongChoices: ["astley"]
     const {hasCompletedRound, goodChoice, wrongChoices} = roundData;
 
+    const message = "Devinez bien !";
+
     return (
         <div className="game-footer-container">
+            <div className="game-footer-container">
+                <h3>Devinez bien !</h3>
+            </div>
             <div className="game-footer-choices-container">
                 {choices.map((choice, index) => {
 

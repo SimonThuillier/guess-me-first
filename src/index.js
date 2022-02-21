@@ -183,7 +183,7 @@ gameNamespace.on("connection", socket => {
                 // we just don't send the chatMessages it's useless in this case
                 gameData.chatMessages = null;
                 // send chat start notification to all players
-                messageData = game.addMessage(null, 'BOT', `Le tour ${game.currentRound.roundNumber} va bientôt commencer !`);
+                messageData = game.addMessage(null, 'BOT', `Le tour ${game.currentRound.roundNumber} / ${game.parameters.roundNumber} va bientôt commencer !`);
                 socket.to(game.gameId).emit('chatMessages', messageData);
                 socket.emit('chatMessages', messageData);
 
