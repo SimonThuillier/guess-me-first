@@ -19,7 +19,7 @@ function getGameId(){
   return match[1];
 }
 
-const defaultRoundData = {goodChoice: null, hasCompletedRound: false, wrongChoices: []}
+const defaultRoundData = {goodChoice: null, hasCompletedRound: false, wrongChoices: []};
 
 function Game() {
   // public general gameData
@@ -191,10 +191,12 @@ function Game() {
       <div>
         <GamePanel url={gameData.currentRound.image.url} startAt={gameData.currentRound.startAt}/>
         <GameFooter 
-        choices={gameData.currentRound.image.choices} 
-        startAt={gameData.currentRound.startAt}
-        roundData={roundData} 
-        onGuess={onGuess} 
+          choices={gameData.currentRound.image.choices} 
+          startAt={gameData.currentRound.startAt}
+          endAt={gameData.currentRound.endAt}
+          roundNumber={gameData.currentRound.roundNumber}
+          roundData={roundData} 
+          onGuess={onGuess} 
         />
       </div>
   }
@@ -204,13 +206,18 @@ function Game() {
       <div className="game-container">
         {gameComponent}
       </div>
-      <GameToast messages={chatMessages} hasStarted={!!gameData.startedAt} setShowOffCanvas={setShowOffCanvas} chatSubmit={chatSubmit}/>
+      <GameToast 
+        messages={chatMessages} 
+        hasStarted={!!gameData.startedAt} 
+        setShowOffCanvas={setShowOffCanvas} 
+        chatSubmit={chatSubmit}
+      />
       <GameOffCanvas 
-      show={showOffCanvas} 
-      setShow={setShowOffCanvas} 
-      messages={chatMessages} 
-      chatSubmit={chatSubmit}
-      scoreboard={gameData.scoreboard}
+        show={showOffCanvas} 
+        setShow={setShowOffCanvas} 
+        messages={chatMessages} 
+        chatSubmit={chatSubmit}
+        scoreboard={gameData.scoreboard}
       />
     </Layout>
   )

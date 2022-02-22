@@ -33,7 +33,9 @@ function GameImage({url, startAt}) {
           const koalaCleanup = koala.makeCircles("#game-dots", colorData, () => {});
           cleanup.func = () => {
             koalaCleanup();
-            this.remove();
+            if(!!this){
+              this.remove();
+            }
           };
         }
 

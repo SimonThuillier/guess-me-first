@@ -20,11 +20,11 @@ function ChatForm({onSubmit}){
     }
 
     // TODO : probably utterly useless , delete later 
-    useEffect(()=> {
+    /*useEffect(()=> {
         document.removeEventListener('keydown', onKeyDown);
         const _onKeyDown = () => (e) => {
             if(!e || !e.key) return;
-            console.log(e.key, onSubmit);
+            // console.log(e.key, onSubmit);
             if (e.key === "Enter"){
                 const message = (e.target.value || "").trim();
                 if(message.length < 1) return;
@@ -58,7 +58,7 @@ function ChatForm({onSubmit}){
                 document.getElementById("chat-form-message").removeEventListener('keydown', onKeyDown);
             }
         }
-    });
+    });*/
 
     return(
         <input 

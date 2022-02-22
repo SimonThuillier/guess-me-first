@@ -105,6 +105,7 @@ Game.prototype.defineNextRound = function(){
         startAt : Math.floor(Date.now() / 1000) + Number(this.parameters.secondsBetweenRound || 5),
         nextGoodGuessBonus: this.baseGoodGuessBonus
     }
+    this.currentRound.endAt = this.currentRound.startAt + Number(this.parameters.maxRoundTime || 30);
 
     // playersGameData is private to each player
     // it will store informations about the game (for now only current round) for each player
