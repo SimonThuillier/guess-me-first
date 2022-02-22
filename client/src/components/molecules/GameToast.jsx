@@ -1,7 +1,8 @@
 import {Button, ToastContainer, Toast, Card} from "react-bootstrap";
 import ChatMessage from "../atoms/ChatMessage";
+import ChatForm from "../molecules/ChatForm";
 
-function GameToast({messages, setShowOffCanvas, hasStarted}){
+function GameToast({messages, setShowOffCanvas, hasStarted, chatSubmit}){
 
     let toastBodyComponent = <Card className="small-card-body" body><i>Aucun message</i></Card>
     if(messages.length > 0){
@@ -30,7 +31,10 @@ function GameToast({messages, setShowOffCanvas, hasStarted}){
     return (
         <ToastContainer className="p-3" position="bottom-center">
           <Toast>
-            <Toast.Body>{toastBodyComponent}</Toast.Body>
+            <Toast.Body>
+                {toastBodyComponent}
+                <ChatForm onSubmit={chatSubmit}/>
+            </Toast.Body>
             <Toast.Header closeButton={false}>
                 <div style={{display:"flex","justify-content":"space-around", width: "100%"}}>
                     {headerComponents}

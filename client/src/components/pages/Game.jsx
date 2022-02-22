@@ -204,7 +204,7 @@ function Game() {
       <div className="game-container">
         {gameComponent}
       </div>
-      <GameToast messages={chatMessages} hasStarted={!!gameData.startedAt} setShowOffCanvas={setShowOffCanvas}/>
+      <GameToast messages={chatMessages} hasStarted={!!gameData.startedAt} setShowOffCanvas={setShowOffCanvas} chatSubmit={chatSubmit}/>
       <GameOffCanvas 
       show={showOffCanvas} 
       setShow={setShowOffCanvas} 

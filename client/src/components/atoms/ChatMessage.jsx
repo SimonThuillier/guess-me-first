@@ -14,13 +14,13 @@ function ChatMessage({id, senderId, senderName, message, createdAt, abridged}){
     // admin messages
     if(!senderId){
         return (
-            <Card className="small-card-body" body><i>{actualMessage}</i></Card>
+            <Card className="small-card-body chat-message" body><i>{actualMessage}</i></Card>
         )
     }
 
     // regular messages
     return (
-        <Card className="small-card-body" body>
+        <Card className="small-card-body chat-message" body>
             <Badge bg="secondary">{senderName}</Badge>&nbsp;
             {actualMessage}
         </Card>
