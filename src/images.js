@@ -14,8 +14,14 @@ function retrieveImage(f){
 }
 readdirSync(IMAGE_DIR).forEach(retrieveImage);
 
-function shuffleArray(array){
-    return array.sort((a, b) => 0.5 - Math.random())
+const shuffleArray = array => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+    return array;
 }
 
 // get N distinct images randomly selected from the list
@@ -23,7 +29,7 @@ export function getNImages(number){
     if (number >= imageList.length) {
         return shuffleArray([...imageList]);
     }
-    return shuffleArray([...imageList].slice(0, number));
+    return shuffleArray(imageList).slice(0, number);
 }
 
 // get N distinct image names randomly selected from the list including a goodOne

@@ -11,6 +11,7 @@ import GamePanel from "../organisms/GamePanel";
 import GameOffCanvas from "../organisms/GameOffCanvas";
 import GameToast from "../molecules/GameToast";
 import GameFooter from '../molecules/GameFooter';
+import GameFooterEnded from '../molecules/GameFooterEnded';
 
 
 function getGameId(){
@@ -74,8 +75,19 @@ function Game() {
       const _chatMessages = data.chatMessages;
       data.chatMessages = null;
       setGameData(data);
+      
       // for rendering optimization purposes chatMessages are handled separately from the rest of the game data
-      setChatMessages(_chatMessages);
+      // special updates for reset cases
+      // moreover if this loading occurs becaure of a reset chat data won't be updated
+      if(!! _chatMessages){
+        setChatMessages(_chatMessages);
+      }
+      // reinit round data if game not started
+      if(!data.startedAt){
+        setRoundData({...defaultRoundData});
+      }
+      //
+      
       setGameStatus({status: "LOADED", message:null});
     });
 
@@ -182,6 +194,21 @@ function Game() {
       }
     }
     gameComponent = <GamePanelPending gameData={gameData} onStart={onStart}/>;
+  }
+  else if (!!gameData.endedAt){
+
+    let onReset = () => {};
+    if(getPlayerId() === gameData.creatorId){
+      onReset = () => {
+        socket.emit('resetGame', {gameId: getGameId()});
+      }
+    }
+
+    gameComponent = 
+      <div>
+        <GamePanel url={gameData.currentRound.image.url} startAt={gameData.currentRound.startAt}/>
+        <GameFooterEnded gameData={gameData} onReset={onReset}/>
+      </div>
   }
   else {
     const onGuess = (guess) => {

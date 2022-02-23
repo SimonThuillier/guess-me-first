@@ -4,6 +4,44 @@ import { ChatMessages } from './chat.js';
 import { getNImages, getNames } from './images.js';
 
 
+
+function getCurrentTimestamp(){
+    return Math.floor(Date.now() / 1000)
+}
+
+// this proxy allows game to push messages to clients using index sio game namespace channel
+export const ioProxy = (() => {
+    let _io = null;
+
+    return {
+        setIO: (io) => {
+            if(!_io){
+                _io = io;
+            }
+        },
+        getIO: () => {
+            return _io;
+        }
+    }
+})();
+
+// each started game can instanciate 
+const asynchronousTaskIdManager = () => {
+
+    return (() =>{
+        let internalId = null;
+    
+        return {
+            setId: (id) => {
+                internalId = id;
+            },
+            getId: () => {
+                return internalId;
+            }
+        }
+    })();
+}
+
 function Game(creatorId, creatorName, parameters){
     this.creatorId = creatorId;
     this.creatorName = creatorName;
@@ -24,11 +62,15 @@ function Game(creatorId, creatorName, parameters){
     this.startedAt = null;
     this.endedAt = null;
 
+    // task id manager for time-triggered tasks
+    this.taskIdManager = null;
+
     // active game Data
     this.baseGoodGuessBonus = 0;
     this._images = null;
     this.scoreboard = null;
     this.currentRound = null; 
+    this.rankings = null;
     this.playersGameData = null;
 }
 
@@ -62,8 +104,66 @@ Game.prototype.getAllMessages = function(counterFrom=null){
     return this.chatMessages.getAll(counterFrom);
 }
 
+// indicate weither game has started or not
+Game.prototype.isStarted = function(){
+    return !!this.startedAt;
+}
+
+// returns true if game isStarted and this player is a valid playing player
+Game.prototype.isPlayingPlayer = function(playerId){
+    return this.isStarted() && this.scoreboard.hasOwnProperty(playerId);
+}
+
+// returns true if all players have completed the round or if time for the round is up
+Game.prototype.currentRoundIsOver = function(){
+    if(!this.playersGameData){return false;}
+
+    let allPlayersHaveCompletedRound = true;
+    for (const [key, value] of Object.entries(this.playersGameData)) {
+        if(!value.hasCompletedRound){
+            allPlayersHaveCompletedRound = false;
+            break;
+        }
+    }
+    if(allPlayersHaveCompletedRound){
+        return true;
+    }
+    // time's up logic
+    return this.currentRound.endAt <= getCurrentTimestamp();
+}
+
+// returns true if all players have completed last round or if time for this round is up
+Game.prototype.gameIsOver = function(){
+    return this.currentRound.roundNumber >= this.parameters.roundNumber && this.currentRoundIsOver();
+}
+
+// get a list of player rankings once game is ended
+Game.prototype.getRankings = function(){
+    const scores = new Set();
+    this.players.forEach(playerId => {
+        scores.add(this.scoreboard[playerId].score);
+    })
+    if(scores.size < 1) return [];
+
+    const rankings = [];
+
+    while(scores.size > 0){
+        let maxScore = Math.max(...Array.from(scores));
+        scores.delete(maxScore);
+
+        let ranking = {score: maxScore, players: []};
+        this.players.forEach(playerId => {
+            if(this.scoreboard[playerId].score !== maxScore) return;
+            ranking.players.push({playerId: playerId, name: this.scoreboard[playerId].name});
+        })
+        rankings.push(ranking);
+    }
+    return rankings;
+}
+
 Game.prototype.startGame = function(){
     if(!!this.startedAt){return;}
+    this.endedAt = null;
     this.startedAt = new Date();
     this.baseGoodGuessBonus = this.players.size;
 
@@ -77,32 +177,103 @@ Game.prototype.startGame = function(){
 
     // define images for the game and their choices
     this._images = getNImages(this.parameters.roundNumber);
+    console.log("new images polled : ", this._images);
     for (const element of this._images) {
         element.choices = getNames(element.name, this.parameters.choicesPerRound);
     }
+
+    this.taskIdManager = asynchronousTaskIdManager();
+
+    /*if(!!ioProxy.getIO()){
+        ioProxy.getIO().to(this.gameId).emit("hello", "does it work ?");
+    }*/
+
     // define next round
-    this.defineNextRound();
+    this.launchNextRound();
 }
 
-// indicate weither game has started or not
-Game.prototype.isStarted = function(){
-    return !!this.startedAt;
+// called when all rounds have been completed 
+Game.prototype.endGame = function(){
+    // clear current asynchronous task
+    if(!!this.taskIdManager.getId()){
+        clearTimeout(this.taskIdManager.getId());
+        this.taskIdManager.setId(null);
+    }
+    if(!!this.endedAt){return;}
+    this.endedAt = new Date();
+
+    let message = `La partie est finie !`;
+    this.rankings = this.getRankings();
+    console.log(this.rankings);
+    // end message for solo game
+    if(Object.keys(this.scoreboard).length === 1){
+        message += ` Vous avez obtenu un score de ${this.rankings[0].score}`;
+    }
+    // end message for multi game
+    else {
+        const firstRank = this.rankings[0];
+        if(firstRank.players.length === 1){
+            message += ` ${firstRank.players[0].name} gagne avec un score de ${firstRank.score}`;
+        }
+        else if(firstRank.players.length === 2){
+            message += ` ${' et '.join(firstRank.players.map(p => p.name))} gagnent ex-aequo avec un score de ${firstRank.score}`;
+        }
+        else {
+            message += ` ${', '.join(firstRank.players.map(p => p.name))} gagnent ex-aequo avec un score de ${firstRank.score}`;
+        }
+    }
+    const messageData = this.addMessage(null, 'BOT', message);
+    ioProxy.getIO().to(this.gameId).emit('chatMessages', messageData);
+
+    const gameData = {...this.getPublicData()};
+    // we just don't send the chatMessages it's useless in this case
+    gameData.chatMessages = null;
+    // sending gameUpdate informing of the end game
+    ioProxy.getIO().to(this.gameId).emit('gameUpdate', gameData);
 }
 
-// returns true if game isStarted and this player is a valid playing player
-Game.prototype.isPlayingPlayer = function(playerId){
-    return this.isStarted() && this.scoreboard.hasOwnProperty(playerId);
+Game.prototype.resetGame = function(){
+    if(!this.startedAt){return;}
+    // clear current asynchronous task
+    if(!!this.taskIdManager && !!this.taskIdManager.getId()){
+        clearTimeout(this.taskIdManager.getId());
+        this.taskIdManager.setId(null);
+    }
+
+    this.startedAt = null;
+    this.endedAt = null;
+
+    // active game Data
+    this.baseGoodGuessBonus = 0;
+    this._images = null;
+    this.scoreboard = null;
+    this.currentRound = null; 
+    this.rankings = null;
+    this.playersGameData = null;
+
+    const messageData = this.addMessage(null, 'BOT', 'Une nouvelle partie va être lancée !');
+    ioProxy.getIO().to(this.gameId).emit('chatMessages', messageData);
+
+    const gameData = {...this.getPublicData()};
+    // we just don't send the chatMessages it's useless in this case
+    gameData.chatMessages = null;
+    ioProxy.getIO().to(this.gameId).emit('gameLoaded', {data: gameData});
+    // sending gameUpdate informing of the end game
+    // ioProxy.getIO().to(this.gameId).emit('gameUpdate', gameData);
 }
 
+// update internal game state for launching next round, returns true if nextround defined, false else (endgame)
 Game.prototype.defineNextRound = function(){
     const roundNumber = this.currentRound ? this.currentRound.roundNumber + 1 : 1;
     // check if there should be a next round
-    if (roundNumber > this.parameters.roundNumber) {return;}
+    if (roundNumber > this.parameters.roundNumber) {return false;}
+
+    const currentTimestamp = getCurrentTimestamp();
 
     this.currentRound = {
         roundNumber: roundNumber,
         image: this._images[roundNumber - 1],
-        startAt : Math.floor(Date.now() / 1000) + Number(this.parameters.secondsBetweenRound || 5),
+        startAt : currentTimestamp + Number(this.parameters.secondsBetweenRound || 5),
         nextGoodGuessBonus: this.baseGoodGuessBonus
     }
     this.currentRound.endAt = this.currentRound.startAt + Number(this.parameters.maxRoundTime || 30);
@@ -117,26 +288,57 @@ Game.prototype.defineNextRound = function(){
             wrongChoices: [],
         };
     });
+
+    return true;
 }
 
-// returns true if all players have completed the round or if time for the round is up
-Game.prototype.currentRoundIsOver = function(){
-    if(!this.playersGameData){return false;}
+// launch next round sending messages to all players, using ioProxy to do so - MUST call defineNextRound
+Game.prototype.launchNextRound = function(){
+    // clear current asynchronous task
+    if(!!this.taskIdManager.getId()){
+        clearTimeout(this.taskIdManager.getId());
+        this.taskIdManager.setId(null);
+    }
 
-    let allPlayersHaveCompletedRound = true;
-    for (const [key, value] of Object.entries(this.playersGameData)) {
+    // goto next round if possible
+    if (!this.defineNextRound()){
+        this.endGame();
+        return;
+    }
+    // send chat start notification to all players
+    const messageData = this.addMessage(null, 'BOT', `Le tour ${this.currentRound.roundNumber} / ${this.parameters.roundNumber} va commencer !`);
+    ioProxy.getIO().to(this.gameId).emit('chatMessages', messageData);
+
+    // send gameUpdate notification and data to all players
+    const gameData = {...this.getPublicData()};
+    // we just don't send the chatMessages it's useless in this case
+    gameData.chatMessages = null;
+    ioProxy.getIO().to(this.gameId).emit('gameUpdate', gameData);
+
+    // stage time'up automatic currentRound closing and next round launch
+    const timeoutId = setTimeout((()=> {
+        this.closeCurrentRound();
+        this.launchNextRound();
+    }).bind(this), (this.currentRound.endAt - getCurrentTimestamp() + 1)*1000);
+    this.taskIdManager.setId(timeoutId);
+}
+
+// for closing current round automatically
+Game.prototype.closeCurrentRound = function(){
+    // clear current asynchronous task if needed
+    if(!!this.taskIdManager.getId()){
+        clearTimeout(this.taskIdManager.getId());
+        this.taskIdManager.setId(null);
+    }
+    // all players who haven't answered lose half base good guess bonus
+    for (const [playerId, value] of Object.entries(this.playersGameData)) {
         if(!value.hasCompletedRound){
-            allPlayersHaveCompletedRound = false;
-            break;
+            this.scoreboard[playerId].score -= (Math.max(1, Math.floor(this.baseGoodGuessBonus)));
         }
     }
-    // TODO : implement time's up logic
-    return allPlayersHaveCompletedRound;
-}
-
-// returns true if all players have completed last round or if time for this round is up
-Game.prototype.gameIsOver = function(){
-    return this.currentRound.roundNumber >= this.parameters.roundNumber && this.currentRoundIsOver();
+    this.currentRound.endAt = getCurrentTimestamp();
+    const messageData = this.addMessage(null, 'BOT', `Le tour ${this.currentRound.roundNumber} est terminé !`);
+    ioProxy.getIO().to(this.gameId).emit('chatMessages', messageData);
 }
 
 // called upon player guess submission : returns weither choice is correct or not, returns null actions didn't have effect
@@ -158,6 +360,7 @@ Game.prototype.playerSubmitGuess = function(playerId, guess){
         this.scoreboard[playerId].score -= (this.playersGameData[playerId].wrongChoices.length);
         return false;
     }
+
 }
 
 /**

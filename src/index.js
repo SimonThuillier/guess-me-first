@@ -4,7 +4,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 
 import { HOSTNAME, PORT, CUSTOM_HEADER_KEY, FRONTEND_URL } from './const.js';
-import { games } from './game.js';
+import { ioProxy, games } from './game.js';
 
 
 // see https://socket.io/get-started/chat for basic configuration
@@ -29,6 +29,8 @@ app.get('/', (req, res) => {
 });
 
 const gameNamespace = io.of("/game");
+// setting ipProxy for games to push messages to clients on their own initiative
+ioProxy.setIO(gameNamespace);
 
 gameNamespace.on("connection", socket => {
     console.log('a user connected :)');
@@ -174,6 +176,10 @@ gameNamespace.on("connection", socket => {
             socket.emit('chatMessages', messageData);
             // check if round is over
             if(game.currentRoundIsOver()){
+                game.closeCurrentRound();
+                game.launchNextRound();
+            }
+            /*if(game.currentRoundIsOver()){
                 messageData = game.addMessage(null, 'BOT', `Le tour ${game.currentRound.roundNumber} est terminé !`);
                 socket.to(game.gameId).emit('chatMessages', messageData);
                 socket.emit('chatMessages', messageData);
@@ -190,8 +196,22 @@ gameNamespace.on("connection", socket => {
                 // send gameUpdate notification and data to all players
                 socket.to(game.gameId).emit('gameUpdate', gameData);
                 socket.emit('gameUpdate', gameData);
-            }
+            }*/
         }
+    });
+    socket.on('resetGame', (...args) => {
+        const game = games.getGame(args[0].gameId);
+        if(!game){
+            socket.emit('gameLoaded', {error: "Game not found"});
+            return;
+        }
+        // only the creator can reset the game
+        if(game.creatorId !== socketData.socketPlayerId){return;}
+        // game can be reset only if started
+        if(!game.isStarted()){return;}
+
+        // then let's go !
+        game.resetGame();
     });
   });
 
