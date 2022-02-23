@@ -1,0 +1,7 @@
+node_modules
+npm-debug.log
+public
+
+client/node_modules
+client/npm-debug.log
+client/dist

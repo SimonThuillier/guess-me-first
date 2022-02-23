@@ -1,0 +1,13 @@
+version: '3'
+services:
+  app:
+    user: "1000:1000"
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "8005:3001"
+    volumes:
+      - /home/simon/Pictures/guess-me-first/stbot:/home/gmf/public/images:cached
+    environment:
+      DUMMY_VAR: dummy

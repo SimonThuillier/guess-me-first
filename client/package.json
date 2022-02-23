@@ -1,6 +1,6 @@
 {
-  "name": "client",
-  "version": "0.0.0",
+  "name": "guess-me-first-client",
+  "version": "0.1.0",
   "scripts": {
     "dev": "vite",
     "dev-local-network": "vite --host",
@@ -24,6 +24,7 @@
     "@babel/core": "^7.17.0",
     "@babel/node": "^7.16.8",
     "@babel/preset-env": "^7.16.11",
+    "vite-preset-react": "^2.2.0",
     "@vitejs/plugin-react": "^1.0.7",
     "babel-plugin-transform-scss": "^1.1.0",
     "sass": "^1.49.7",

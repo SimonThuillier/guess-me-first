@@ -1,6 +1,6 @@
 {
   "name": "guess-me-first",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "guess me first game application",
   "main": "index.js",
   "type": "module",

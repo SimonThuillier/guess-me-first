@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express from 'express';
+import path from 'path';
 import http from 'http';
 import { Server } from 'socket.io';
 
@@ -23,10 +24,6 @@ const io = new Server(server, {
       credentials: true
     }
   });
-
-app.get('/', (req, res) => {
-    res.send('Guess-me-first says hello!');
-});
 
 const gameNamespace = io.of("/game");
 // setting ipProxy for games to push messages to clients on their own initiative
@@ -214,6 +211,11 @@ gameNamespace.on("connection", socket => {
         game.resetGame();
     });
   });
+
+// the last declared road will handle all calls to serve the app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(path.resolve(), './public/index.html'));
+});  
 
 server.listen(PORT, HOSTNAME, () => {
     console.log(`express server is running on port ${PORT}`);
