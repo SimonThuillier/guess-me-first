@@ -7,12 +7,11 @@ const IMAGE_DIR = './public/images';
 const imageList = [];
 
 function retrieveImage(f){
-    console.log('image', f);
-    const match = f.match(/^([^\.]+).*$/);
+    // console.log('image', f);
+    const match = f.match(/^([^\.]+)\.[^\.]+$/);
     if(!match){return;}
     imageList.push({url: `${PUBLIC_URL}/images/${f}`, name: match[1]});
 }
-readdirSync(IMAGE_DIR).forEach(retrieveImage);
 
 const shuffleArray = array => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -25,7 +24,10 @@ const shuffleArray = array => {
 }
 
 // get N distinct images randomly selected from the list
+// for production purposes reload the list from disk, this allows dynamic images gestion
 export function getNImages(number){
+    while (imageList.length > 0) {imageList.pop();}
+    readdirSync(IMAGE_DIR).forEach(retrieveImage);
     if (number >= imageList.length) {
         return shuffleArray([...imageList]);
     }
