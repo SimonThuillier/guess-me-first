@@ -159,7 +159,7 @@ function Game() {
       const data = args[0];
       if(data.gameId !== getGameId()) return;
       console.log("gameUpdate received");
-      if(gameData.currentRound.roundNumber !== data.currentRound.roundNumber){
+      if(!gameData.currentRound || gameData.currentRound.roundNumber !== data.currentRound.roundNumber){
         console.log("roundUpdate received", data.currentRound);
         console.log("current timestamp", Math.floor(Date.now() / 1000));
         setRoundData({...defaultRoundData});
