@@ -199,6 +199,7 @@ Game.prototype.endGame = function(){
         clearTimeout(this.taskIdManager.getId());
         this.taskIdManager.setId(null);
     }
+    if(!this.startedAt){return;}
     if(!!this.endedAt){return;}
     this.endedAt = new Date();
 
