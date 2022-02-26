@@ -92,6 +92,11 @@ gameNamespace.on("connection", socket => {
             socket.emit('gameLoaded', {error: "Game not found"});
             return;
         }
+        // during ongoing games only players present at start can join
+        if(!!game.startedAt && !game.playingPlayersId().includes(socketData.socketPlayerId)){
+            socket.emit('gameLoaded', {error: "Game not found"});
+            return;
+        }
         // referencing new player
         games.playerJoinGame(socketData.socketPlayerId, socketData.socketPlayerName, game.gameId);
         socketData.socketGames.add(game.gameId);

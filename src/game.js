@@ -51,7 +51,9 @@ function Game(creatorId, creatorName, parameters){
     this.gameId = `g_${uuidV4()}`;
     this.gameName = `partie de ${creatorName}`;
 
+    // currently connected players
     this.players = new Set([creatorId]);
+    // playersInfo is used to store player names and ids
     this.playersInfo = {};
 
     this.path = `/game/${this.gameId}`;
@@ -74,15 +76,25 @@ function Game(creatorId, creatorName, parameters){
     this.playersGameData = null;
 }
 
+// list of players ids present at game start
+Game.prototype.playingPlayersId = function() {
+    if (!this.scoreboard) {
+      return [];
+    }
+    return Object.keys(this.scoreboard);
+}
+
 Game.prototype.addPlayer = function(playerId, playerName){
     this.players.add(playerId);
-    this.playersInfo[playerId] = {id: playerId, name: playerName};
+    if (!this.playersInfo[playerId]){
+        this.playersInfo[playerId] = {id: playerId, name: playerName};
+    }
+    
     return this;
 }
 
 Game.prototype.removePlayer = function(playerId){
     this.players.delete(playerId);
-    console.log(this.players);
     return this;
 }
 
@@ -140,7 +152,7 @@ Game.prototype.gameIsOver = function(){
 // get a list of player rankings once game is ended
 Game.prototype.getRankings = function(){
     const scores = new Set();
-    this.players.forEach(playerId => {
+    this.playingPlayersId().forEach(playerId => {
         scores.add(this.scoreboard[playerId].score);
     })
     if(scores.size < 1) return [];
@@ -152,7 +164,7 @@ Game.prototype.getRankings = function(){
         scores.delete(maxScore);
 
         let ranking = {score: maxScore, players: []};
-        this.players.forEach(playerId => {
+        this.playingPlayersId().forEach(playerId => {
             if(this.scoreboard[playerId].score !== maxScore) return;
             ranking.players.push({playerId: playerId, name: this.scoreboard[playerId].name});
         })
@@ -282,7 +294,7 @@ Game.prototype.defineNextRound = function(){
     // playersGameData is private to each player
     // it will store informations about the game (for now only current round) for each player
     // thus it is reinitialized for each round
-    this.players.forEach(playerId => {
+    this.playingPlayersId().forEach(playerId => {
         this.playersGameData[playerId] = {
             goodChoice: null,
             hasCompletedRound: false,
@@ -449,9 +461,7 @@ export const games = (() => {
         },
         playerJoinGame: (playerId, playerName, gameId) => {
             const game = _games.get(gameId);
-            if(!game){
-                return;
-            }
+            if(!game) return;
             game.addPlayer(playerId, playerName);
             registerPlayer(playerId, game.gameId);
             console.log(`After playerJoinGame there are now ${_playerGamesIndex.size} players on ${_games.size} games`);
