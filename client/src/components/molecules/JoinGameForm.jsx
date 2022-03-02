@@ -55,14 +55,14 @@ function JoinGameForm({ onSubmit }) {
                         <Form.Group className="mb-3" controlId="gameLink">
                             <Form.Label>Entrez le lien d'invitation</Form.Label>
                             <Form.Control 
-                            style={{display:"inline-block", "max-width": "85%"}}
+                            style={{display:"inline-block", "maxWidth": "85%"}}
                             type="text" 
                             placeholder="lien" 
-                            value={formData.gameLink} 
+                            value={formData.gameLink || ''} 
                             onChange={handleChange}/>
                             &nbsp;&nbsp;
                             <Button 
-                            style={{transform:"translateY(-2px)", "ms-transform":"translateY(-2px)"}}
+                            style={{transform:"translateY(-2px)", "msTransform":"translateY(-2px)"}}
                             title="Collez le lien" 
                             onClick={onPasteButtonClick} 
                             variant={pasteButtonVariant}>

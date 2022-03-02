@@ -13,7 +13,7 @@ function GameStatusAlert(props){
     }    
 
     return(
-            <Alert show="1" variant={variant} onClose={_onDismiss} dismissible>
+            <Alert show={true} variant={variant} onClose={_onDismiss} dismissible>
                 <Alert.Heading>{heading}</Alert.Heading>
                 <p>{_message}</p>
                 <hr />

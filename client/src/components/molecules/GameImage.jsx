@@ -10,7 +10,7 @@ function GameImage({url, startAt}) {
   
     useEffect(() => {
 
-      console.log('execute gameimage effect', url);
+      //console.log('execute gameimage effect', url);
 
       const cleanup ={func: ()=>{}};
       
@@ -19,7 +19,7 @@ function GameImage({url, startAt}) {
         const img = new Image();
         img.crossOrigin = "Anonymous";
         img.onload = function() {
-        console.log(`on loading image ${url}`);
+        //console.log(`on loading image ${url}`);
         var colorData;
         try {
           colorData = koala.loadImage(img);

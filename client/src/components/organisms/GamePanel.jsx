@@ -14,7 +14,7 @@ import GameImage from '../molecules/GameImage';
 function GamePanel({url, startAt}) {
 
   return (
-    <div className="game-panel-container">
+    <div id="game-panel-container" className="game-panel-container">
       <GameImage url={url} startAt={startAt} />
     </div>  
   );

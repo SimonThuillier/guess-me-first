@@ -2,9 +2,7 @@ import PropTypes from 'prop-types';
 import {Button, useAccordionButton} from "react-bootstrap";
 
 function JoinGameButton({ eventKey }) {
-    const decoratedOnClick = useAccordionButton(eventKey, () =>
-      console.log('totally custom!'),
-    );
+    const decoratedOnClick = useAccordionButton(eventKey, () => {});
   
     return (
         <Button className='join-game-card-button' onClick={decoratedOnClick} variant="success" size="lg">

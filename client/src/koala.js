@@ -32,7 +32,7 @@ export const koala = {
 
 const getDims = () =>{
     let maxSize = 512;
-    console.log(window.innerWidth);
+    // console.log(window.innerWidth);
 
     let minSize = 4;
 
@@ -287,7 +287,7 @@ const getDims = () =>{
 
     // Got the data now build the tree
     var finestLayer = array2d(dim, dim);
-    console.log(finestLayer);
+    // console.log(finestLayer);
     var size = minSize;
 
     //console.log(dim);
@@ -424,7 +424,7 @@ const getDims = () =>{
     }
 
     // Initialize interaction
-    d3.select("#game-dots")
+    d3.select("#game-panel-container")
       .on('mousemove.koala', onMouseMove)
       .on('touchmove.koala', onTouchMove)
       .on('touchend.koala', onTouchEnd)
@@ -432,7 +432,7 @@ const getDims = () =>{
 
       return function cleanup(){
         console.log("in koala cleanup");
-        d3.select("#game-dots")
+        d3.select("#game-panel-container")
           .on('mousemove.koala', null)
           .on('touchmove.koala', null)
           .on('touchend.koala', null)

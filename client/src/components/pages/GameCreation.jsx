@@ -42,11 +42,11 @@ function GameCreation() {
   useEffect(() => {
     const socket = sioSingleton.getSocket('/game');
     if(socket.connected){
-      console.log("deja co :)");
+      // console.log("deja co :)");
       onConnect();
     }
     else{
-      console.log("pas deja co");
+      // console.log("pas deja co");
       socket.off('connect').on('connect', onConnect);
       socket.off('connect_error').on('connect_error', onConnectFailed);
       socket.connect();

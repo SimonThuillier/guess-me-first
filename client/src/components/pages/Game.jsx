@@ -66,7 +66,7 @@ function Game() {
     const gameId = getGameId();
 
     socket.off('gameLoaded').on('gameLoaded', (...args) => {
-      console.log('gameLoaded', args);
+      //console.log('gameLoaded', args);
       if(!!args[0].error){
         navigate('/unknown-game');
         return;
@@ -129,10 +129,7 @@ function Game() {
 
     socket.off('chatMessages').on('chatMessages', (...args) => {
       if(args[0].gameId !== getGameId()) return;
-      console.log('old chatMessages', chatMessages);
-      console.log('new ChatMessages', args[0].messages);
       const concatMessages = [...chatMessages, ...args[0].messages];
-      console.log('concatMessages', concatMessages);
       setChatMessages(concatMessages);
     });
   }, [chatMessages]);
@@ -142,10 +139,12 @@ function Game() {
 
     socket.off('gameStarted').on('gameStarted', (...args) => {
       const data = args[0];
-      console.log(data);
+      //console.log(data);
       if(data.gameId !== getGameId()) return;
       setGameData(data);
       setGameStatus({status: "STARTED", message:null});  
+      // hide canvas to prevent user from not seeing the beginning of the game
+      setShowOffCanvas(false);
     });
 
     socket.off('roundUpdate').on('roundUpdate', (...args) => {
@@ -158,10 +157,8 @@ function Game() {
     socket.off('gameUpdate').on('gameUpdate', (...args) => {
       const data = args[0];
       if(data.gameId !== getGameId()) return;
-      console.log("gameUpdate received");
+      //console.log("gameUpdate received");
       if(!gameData.currentRound || gameData.currentRound.roundNumber !== data.currentRound.roundNumber){
-        console.log("roundUpdate received", data.currentRound);
-        console.log("current timestamp", Math.floor(Date.now() / 1000));
         setRoundData({...defaultRoundData});
       }
       setGameData(data);
@@ -205,17 +202,17 @@ function Game() {
     }
 
     gameComponent = 
-      <div>
+      <>
         <GamePanel url={gameData.currentRound.image.url} startAt={gameData.currentRound.startAt}/>
         <GameFooterEnded gameData={gameData} onReset={onReset}/>
-      </div>
+      </>
   }
   else {
     const onGuess = (guess) => {
       socket.emit('submitGuess', {gameId: getGameId(), guess: guess});
     }
     gameComponent = 
-      <div>
+      <>
         <GamePanel url={gameData.currentRound.image.url} startAt={gameData.currentRound.startAt}/>
         <GameFooter 
           choices={gameData.currentRound.image.choices} 
@@ -225,7 +222,7 @@ function Game() {
           roundData={roundData} 
           onGuess={onGuess} 
         />
-      </div>
+      </>
   }
 
   return (
@@ -235,7 +232,8 @@ function Game() {
       </div>
       <GameToast 
         messages={chatMessages} 
-        hasStarted={!!gameData.startedAt} 
+        hasStarted={!!gameData.startedAt}
+        hasEnded={!!gameData.endedAt}
         setShowOffCanvas={setShowOffCanvas} 
         chatSubmit={chatSubmit}
       />

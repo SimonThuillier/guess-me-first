@@ -32,9 +32,6 @@ const intervalIdManager = (() =>{
 })();
 
 function GameFooter({choices, onGuess, roundNumber, roundData, startAt, endAt}){
-
-    // console.log("roundData", roundData);
-    // roundData : goodChoice: null, hasCompletedRound: false, wrongChoices: ["astley"], roundNumber:1
     const {hasCompletedRound, goodChoice, wrongChoices} = roundData;
     const [dynamicData, setDynamicData] = useState({
         displayedMessage: "Le tour va bientôt commencer",
@@ -45,7 +42,6 @@ function GameFooter({choices, onGuess, roundNumber, roundData, startAt, endAt}){
     const clearDynamicDisplayInterval = () => {
         const intervalId = intervalIdManager.getId();
         if(!!intervalId){
-            console.log(`clear interval ${intervalId}`);
             clearInterval(intervalId);
             intervalIdManager.setId(null);
         }
@@ -78,7 +74,12 @@ function GameFooter({choices, onGuess, roundNumber, roundData, startAt, endAt}){
             newDynamicData.remainingTimeForStart = Math.max(startAt-getCurrentTimestamp(), 0);
 
             if (newDynamicData.remainingTimeForStart > 0){
-                newDynamicData.displayedMessage = `Le tour ${roundNumber} va bientôt commencer`;
+                if(roundNumber === 1){
+                    newDynamicData.displayedMessage = `Grattez le cercle qui va apparaître pour le diviser et deviner l'image cachée !`;
+                }
+                else {
+                    newDynamicData.displayedMessage = `Le tour ${roundNumber} va bientôt commencer`;
+                }
             }
             else if(remainingTime > 0){
                 newDynamicData.displayedMessage = `Devinez bien ! il vous reste ${textualRemainingTime(remainingTime)}`;
@@ -95,7 +96,6 @@ function GameFooter({choices, onGuess, roundNumber, roundData, startAt, endAt}){
         intervalIdManager.setId(intervalId);
         
         return () => {
-            console.log("clean dynamic display effect");
             clearDynamicDisplayInterval();
         }
     }, [roundNumber, hasCompletedRound, startAt, endAt]);

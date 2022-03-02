@@ -47,7 +47,9 @@ function GamePanelPending(props) {
             <Button title="Copiez le lien" onClick={onCopyButtonClick} variant={copyButtonVariant}><FaCopy /></Button>
           </Card.Body>
         </Card>
-        <div><Button onClick={onStart} variant="primary">Lancer la partie !</Button></div>
+        <div style={{paddingTop: "2vh"}}>
+          <Button onClick={onStart} variant="primary">Lancer la partie !</Button>
+        </div>
     </div>
   );
 }

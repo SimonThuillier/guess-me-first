@@ -49,7 +49,6 @@ function HomeMenu() {
                 <JoinGameForm onSubmit={(event)=>{
                     event.preventDefault();
                     navigate(event.target.elements.gameLink.value.replace(window.location.origin,''));
-                    console.log(event.target.elements.gameLink.value.replace(window.location.origin,''));
                     }}/>
             </div>
         </Row>

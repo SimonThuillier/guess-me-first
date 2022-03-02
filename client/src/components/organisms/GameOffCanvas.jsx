@@ -5,8 +5,6 @@ import GameScoreboard from '../molecules/GameScoreboard';
 
 function GameOffCanvas({show, setShow, messages, chatSubmit, scoreboard}){
 
-    console.log("scoreboard", scoreboard);
-
     let offcanvasBody = <div>?</div>;
     if(show === "chat"){
         offcanvasBody = <Chat messages={messages} onSubmit={chatSubmit}/>;
