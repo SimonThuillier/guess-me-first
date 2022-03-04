@@ -52,9 +52,11 @@ function Game(creatorId, creatorName, parameters){
     this.gameName = `partie de ${creatorName}`;
 
     // currently connected players
-    this.players = new Set([creatorId]);
+    this.players = new Set();
     // playersInfo is used to store player names and ids
     this.playersInfo = {};
+    // let's add the creator
+    this.addPlayer(creatorId, creatorName);
 
     this.path = `/game/${this.gameId}`;
     this.url = `${FRONTEND_URL}/game/${this.gameId}`;
