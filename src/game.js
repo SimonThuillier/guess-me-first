@@ -231,10 +231,10 @@ Game.prototype.endGame = function(){
             message += ` ${firstRank.players[0].name} gagne avec un score de ${firstRank.score}`;
         }
         else if(firstRank.players.length === 2){
-            message += ` ${' et '.join(firstRank.players.map(p => p.name))} gagnent ex-aequo avec un score de ${firstRank.score}`;
+            message += ` ${firstRank.players.map(p => p.name).join(' et ')} gagnent ex-aequo avec un score de ${firstRank.score}`;
         }
         else {
-            message += ` ${', '.join(firstRank.players.map(p => p.name))} gagnent ex-aequo avec un score de ${firstRank.score}`;
+            message += ` ${firstRank.players.map(p => p.name).join(', ')} gagnent ex-aequo avec un score de ${firstRank.score}`;
         }
     }
     const messageData = this.addMessage(null, 'BOT', message);
