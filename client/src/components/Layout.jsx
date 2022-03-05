@@ -1,19 +1,21 @@
 import PropTypes from 'prop-types';
 import {Container} from "react-bootstrap";
+import {useViewport} from "../useViewport";
 import MyNavbar from "./organisms/MyNavbar";
 
 
 
-const Layout = (props) => (
-    <div>
+const Layout = (props) => {
+    const viewport = useViewport()
+    return (<>
         <MyNavbar></MyNavbar>
-        <Container fluid className={!!props.vcenter ? "vertical-center":""}>
-            <div>
-                {props.children}
-            </div>  
-        </Container>
-    </div>
-);
+        <div style={{position:"absolute", top:"48px", x:"0px", height:`${viewport[1] - 48}px`, width: "100%"}}>
+            <Container fluid className={!!props.vcenter ? "vertical-center":""}>
+                    {props.children} 
+            </Container>
+        </div> 
+    </>)
+}
 
 Layout.propTypes = {
     vcenter: PropTypes.any

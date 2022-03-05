@@ -88,3 +88,34 @@ export function hasValidPlayerName(){
   const playerName = item ? JSON.parse(item) : null;
   return playerName || "";
 }
+
+// function providing a simple, yet highly effective observable
+export function makeObservable(initialValue) {
+  let listeners = []; // initial listeners can be passed an an argument as well
+  let value = initialValue;
+
+  function get() {
+    return value;
+  }
+
+  function set(newValue) {
+    if (value === newValue) return;
+    value = newValue;
+    listeners.forEach((l) => l(value));
+  }
+
+  function subscribe(listenerFunc) {
+    listeners.push(listenerFunc);
+    return () => unsubscribe(listenerFunc); // will be used inside useEffect
+  }
+
+  function unsubscribe(listenerFunc) {
+    listeners = listeners.filter((l) => l !== listenerFunc);
+  }
+
+  return {
+    get,
+    set,
+    subscribe,
+  };
+}

@@ -7,7 +7,7 @@ const MyNavbar = function(){
   const navigate = useNavigate();
 
   return (
-  <Navbar bg="dark" variant="dark">
+  <Navbar bg="dark" variant="dark" fixed="top">
     <Container>
       <Navbar.Brand onClick={()=>{navigate("/")}}>
       Guess me First !
