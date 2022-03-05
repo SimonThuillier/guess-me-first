@@ -6,11 +6,7 @@ import MyNavbar from "./organisms/MyNavbar";
 
 
 const Layout = (props) => {
-
     const viewport = useViewport()
-
-    console.log(viewport);
-
     return (<>
         <MyNavbar></MyNavbar>
         <div style={{position:"absolute", top:"48px", x:"0px", height:`${viewport[1] - 48}px`, width: "100%"}}>
