@@ -24,7 +24,6 @@ RUN npm run build
 WORKDIR /home/gmf
 RUN mkdir ./public
 RUN cp -r ./client/dist/* ./public
-RUN cp ./public.dist/d3.min.js ./public
 
 EXPOSE 3001
 CMD [ "node", "./src/index.js" ]
