@@ -34,7 +34,6 @@ export function useViewport() {
   useEffect(() => {
     function handleViewportChange() {
       const newViewport = getViewport();
-      console.log("new Viewport: ", newViewport);
       setViewport(newViewport);
     }
 

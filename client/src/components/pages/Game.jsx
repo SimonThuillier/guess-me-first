@@ -118,7 +118,6 @@ function Game() {
   useEffect(() => {
 
     setChatSubmit(() => (message) => {
-      console.log('emit ChatMessage', message);
       socket.emit('emitChatMessage', {
         gameId: getGameId(),
         playerId: getPlayerId(),

@@ -21,8 +21,8 @@ function GamePanel({url, startAt}) {
 }
 
 GamePanel.propTypes = {
-    gameData: PropTypes.object.isRequired,
-    onGuess: PropTypes.func.isRequired,
+    url: PropTypes.string.isRequired,
+    startAt: PropTypes.number.isRequired,
 };
 
 export default GamePanel

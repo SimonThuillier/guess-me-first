@@ -19,19 +19,15 @@ function GameCreation() {
     const socket = sioSingleton.getSocket('/game');
 
     socket.on('gameCreated', (...args) => {
-      console.log('gameCreated', args);
       const params = args[0];
       setGameData(params);
       navigate(params.path);
     });
-
-
     socket.emit('createGame', {
       creatorId: getPlayerId(), 
       creatorName: getPlayerName(), 
       parameters: ownedGameConfiguration  
     });
-
     setGameCreationStatus({status: "CREATING", message:null});
   }
 
@@ -42,14 +38,17 @@ function GameCreation() {
   useEffect(() => {
     const socket = sioSingleton.getSocket('/game');
     if(socket.connected){
-      // console.log("deja co :)");
       onConnect();
     }
     else{
-      // console.log("pas deja co");
       socket.off('connect').on('connect', onConnect);
       socket.off('connect_error').on('connect_error', onConnectFailed);
       socket.connect();
+    }
+
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('connect_error', onConnectFailed);
     }
   }, []);
 
@@ -79,7 +78,6 @@ function GameCreation() {
       </Layout>
     )
   }
-
 
   // nominal case
   return (

@@ -9,6 +9,7 @@ function GameToast({messages, setShowOffCanvas, hasStarted, hasEnded, chatSubmit
 
     let headerComponents = [
         <Button 
+          key="chat-button"
           variant="primary"
           onClick={() => {setShowOffCanvas("chat")}}>
           Chat
@@ -18,6 +19,7 @@ function GameToast({messages, setShowOffCanvas, hasStarted, hasEnded, chatSubmit
     if(hasStarted){
     headerComponents.push(
         <Button 
+            key="scores-button"
             variant="primary"
             onClick={() => {setShowOffCanvas("scoreboard")}}>
             Scores
@@ -32,7 +34,7 @@ function GameToast({messages, setShowOffCanvas, hasStarted, hasEnded, chatSubmit
             <ToastContainer className="p-1" position="bottom-end">
               <Toast>
                 <Toast.Header closeButton={false}>
-                    <div style={{display:"flex","justify-content":"space-around", width: "100%"}}>
+                    <div style={{display:"flex",justifyContent:"space-around", width: "100%"}}>
                         {headerComponents}
                     </div>
                 </Toast.Header>
@@ -54,7 +56,7 @@ function GameToast({messages, setShowOffCanvas, hasStarted, hasEnded, chatSubmit
                 <ChatForm onSubmit={chatSubmit}/>
             </Toast.Body>
             <Toast.Header closeButton={false}>
-                <div style={{display:"flex","justify-content":"space-around", width: "100%"}}>
+                <div style={{display:"flex",justifyContent:"space-around", width: "100%"}}>
                     {headerComponents}
                 </div>
             </Toast.Header>

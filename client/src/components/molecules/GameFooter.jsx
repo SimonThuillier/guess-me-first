@@ -49,9 +49,6 @@ function GameFooter({choices, onGuess, roundNumber, roundData, startAt, endAt}){
 
     // dynamic display effect
     useEffect(() => {
-
-        console.log("execute dynamic display effect");
-
         if(hasCompletedRound){
             const newDynamicData = {...dynamicData};
             newDynamicData.displayedMessage = "Bien joué ! les autres joueurs finissent leur tour...";
