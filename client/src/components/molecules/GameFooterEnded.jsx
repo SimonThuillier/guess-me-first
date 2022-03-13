@@ -15,11 +15,7 @@ import NameForm from './NameForm'
 function GameFooterEnded(props) {
 
   const {gameData, onReset} = props;
-
   const {scoreboard, rankings} = gameData;
-
-  console.log("game footer ended");
-  console.log(scoreboard, rankings);
 
   let message = `La partie est finie !`;
 

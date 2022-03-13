@@ -17,7 +17,6 @@ function GameConfiguration() {
   const navigate = useNavigate();
 
   const handleSubmit = (data) => {
-    console.log(data);
     setOwnedGameConfiguration(data);
     navigate('/new-game');
   }  
